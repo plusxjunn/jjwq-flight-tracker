@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import html
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 # Fixed categorical order (validated palette): colour follows the airline, never its rank.
@@ -53,6 +53,74 @@ def _table(store, cfg) -> str:
         rows.append(f'<tr><th scope="row">{html.escape(s["label"])}</th>{"".join(cells)}</tr>')
     head = "".join(f'<th scope="col">{html.escape(cfg["short_names"].get(c, c))}</th>' for c in cfg["airlines"])
     return f'<table><thead><tr><th scope="col">Trip</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
+
+
+def chart_png(store, cfg, path: str | Path) -> bool:
+    """Weekly-digest chart picture of the core trip. Returns False when there's no data yet."""
+    data = _series(store, cfg)
+    if not data["days"]:
+        return False
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.dates as mdates
+    import matplotlib.pyplot as plt
+
+    bg, ink, ink2, grid = "#fcfcfb", "#0b0b0b", "#52514e", "#e6e5e1"
+    days = [datetime.fromisoformat(d) for d in data["days"]]
+    few = len(days) < 15
+    fig, ax = plt.subplots(figsize=(7.2, 4.8), dpi=150)
+    fig.patch.set_facecolor(bg)
+    ax.set_facecolor(bg)
+
+    band = [(d, lo, hi) for d, lo, hi in zip(days, data["bandLow"], data["bandHigh"]) if lo and hi]
+    if len(band) > 1:
+        ax.fill_between([b[0] for b in band], [b[1] for b in band], [b[2] for b in band],
+                        color="#78786e", alpha=.14, lw=0, label="Google's typical range")
+    elif band:   # one day of data: show the range as a flat band
+        ax.axhspan(band[0][1], band[0][2], color="#78786e", alpha=.14, lw=0, label="Google's typical range")
+    ends, color_of = [], {}
+    for i, a in enumerate(data["airlines"]):
+        pts = [(d, p) for d, p in zip(days, a["prices"]) if p is not None]
+        if not pts:
+            continue
+        color_of[a["code"]] = COLORS_LIGHT[i]
+        ax.plot([p[0] for p in pts], [p[1] for p in pts], color=COLORS_LIGHT[i], lw=2.2,
+                marker="o" if few else None, ms=4, label=a["name"])
+        ends.append((pts[-1][1], pts[-1][0], cfg["short_names"].get(a["code"], a["code"])))
+    for al in data["alerts"]:
+        ax.plot(datetime.fromisoformat(al["day"]), al["price"], marker="^", ms=8, ls="none",
+                color=color_of.get(al["airline"], ink2), mec=bg, mew=1.5)
+    if data["alerts"]:
+        ax.plot([], [], marker="^", ms=8, color=ink2, ls="none", label="Alert sent")
+
+    span = max((days[-1] - days[0]).days, 6)
+    ax.set_xlim(days[0] - timedelta(days=0.5), days[-1] + timedelta(days=span * 0.22))
+    # Direct labels at the line ends, nudged apart so they never overlap.
+    ends.sort()
+    lo, hi = ax.get_ylim()
+    ys = [e[0] for e in ends]
+    for i in range(1, len(ys)):
+        ys[i] = max(ys[i], ys[i - 1] + (hi - lo) * 0.055)
+    for (price, d, name), y in zip(ends, ys):
+        ax.annotate(f"{name} S${price:.0f}", (d, price), xytext=(mdates.date2num(d) + span * 0.03, y),
+                    textcoords="data", va="center", fontsize=9.5, color=ink, fontweight="bold")
+
+    ax.set_title("SIN⇄Bali return Fri 3 → Sun 5 Sep · cheapest per day", loc="left",
+                 fontsize=12, fontweight="bold", color=ink)
+    ax.yaxis.set_major_formatter(lambda v, _: f"S${v:.0f}")
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%-d %b"))
+    ax.xaxis.set_major_locator(mdates.DayLocator(interval=max(1, round(span / 6))) if span <= 21
+                               else mdates.AutoDateLocator(maxticks=7))
+    for s in ("top", "right", "left"):
+        ax.spines[s].set_visible(False)
+    ax.spines["bottom"].set_color("#cfcec9")
+    ax.grid(axis="y", color=grid)
+    ax.tick_params(colors=ink2, labelsize=9, length=0)
+    ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1), ncol=3, frameon=False, fontsize=9, labelcolor=ink2)
+    fig.tight_layout()
+    fig.savefig(path, facecolor=bg)
+    plt.close(fig)
+    return True
 
 
 def build(store, cfg, path: str | Path, now: datetime) -> None:

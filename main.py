@@ -225,6 +225,13 @@ def run(cfg: dict, store: Store, provider, notifier, now: datetime, slot: str,
 
     # ---- weekly digest ----
     if force_digest or (slot == "morning" and now.weekday() == cfg["schedule"]["digest_weekday"]):
+        # Chart picture first; a failure here must never block the digest itself.
+        try:
+            png = Path(tempfile.mkdtemp(prefix="flight-chart-")) / "weekly-chart.png"
+            if report.chart_png(store, cfg, png):
+                notifier.guest_photo(png, notify.chart_caption(cfg))
+        except Exception as e:
+            notifier.admin(f"⚠️ Weekly chart picture failed, digest sent without it: {type(e).__name__}: {e}")
         notifier.guest(notify.digest_message(build_digest(store, cfg, specs_for(cfg), now), cfg))
 
     # ---- bookkeeping ----

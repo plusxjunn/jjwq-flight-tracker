@@ -48,8 +48,10 @@ Each trip+airline then has a 72-hour cooldown, unless the price drops a further 
 A **"prices climbing"** warning is posted when the cheapest `core` price has been ≥15% above its
 30-day median for 3 days in a row.
 
-**Weekly digest** every Sunday morning: cheapest round trip per airline (both trips), mix & match
-combos, afternoon/evening options, change vs last week, lowest seen, and one verdict:
+**Weekly digest** every Sunday morning: first a **chart picture** of the Fri→Sun round trip (one line
+per airline, Google's typical range shaded, ▲ where alerts fired), then the summary: cheapest round trip
+per airline (both trips), mix & match combos, afternoon/evening options, change vs last week, lowest
+seen, and one verdict:
 
 | Verdict | Meaning |
 |---|---|
@@ -138,7 +140,7 @@ After that it runs by itself every day.
 | `store.py` | SQLite schema, call counter, run log, CSV export |
 | `rules.py` | alert rules, cooldown, "prices climbing", verdict (pure functions) |
 | `notify.py` | Telegram guest/admin delivery and message templates |
-| `report.py` | builds `docs/report.html` (Chart.js, mobile-first) |
+| `report.py` | builds `docs/report.html` (Chart.js, mobile-first) and the weekly chart picture (matplotlib) |
 | `main.py` | orchestration and CLI |
 | `tests/test_rules.py` | unit tests for every rule, cooldown and the hard-deadline verdict |
 

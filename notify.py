@@ -18,6 +18,7 @@ class Notifier:
     def guest(self, text: str) -> None: ...
     def admin(self, text: str) -> None: ...
     def guest_pinned(self, text: str) -> None: ...
+    def guest_photo(self, path, caption: str) -> None: ...
 
 
 class TelegramNotifier(Notifier):
@@ -47,6 +48,18 @@ class TelegramNotifier(Notifier):
     def admin(self, text):
         self._send(self.admin_chat_id, "🔧 Flight tracker\n" + h(text))
 
+    def guest_photo(self, path, caption):
+        try:
+            with open(path, "rb") as f:
+                r = requests.post(TELEGRAM_API.format(token=self.token, method="sendPhoto"),
+                                  data={"chat_id": self.channel_id, "caption": caption[:1024], "parse_mode": "HTML"},
+                                  files={"photo": f}, timeout=60)
+            data = r.json()
+        except (requests.RequestException, ValueError) as e:
+            raise RuntimeError(f"Telegram sendPhoto failed: {str(e).replace(self.token, '***')}") from None
+        if not data.get("ok"):
+            raise RuntimeError(f"Telegram sendPhoto failed: {data.get('description')}")
+
     def guest_pinned(self, text):
         msg = self._send(self.channel_id, text)
         self._call("pinChatMessage", chat_id=self.channel_id, message_id=msg["message_id"],
@@ -69,6 +82,9 @@ class PrintNotifier(Notifier):
 
     def guest_pinned(self, text):
         self._print("GUEST CHANNEL (pinned)", text)
+
+    def guest_photo(self, path, caption):
+        self._print("GUEST CHANNEL (photo)", f"[picture: {path}]\n{caption}")
 
 
 # ---- formatting helpers ---------------------------------------------------
@@ -166,6 +182,13 @@ def welcome_message(cfg: dict) -> str:
         "each way for a bag). We post only when it's worth your attention, plus a summary every Sunday.\n"
         f"📊 {link(cfg.get('report_url'), 'Price chart')}"
     )
+
+
+def chart_caption(cfg: dict) -> str:
+    text = "📊 This week's prices: Fri 3 → Sun 5 Sep return, cheapest per airline. ▲ = alert sent."
+    if cfg.get("report_url"):
+        text += f" {link(cfg['report_url'], 'Full report')}"
+    return text
 
 
 def digest_message(d: dict, cfg: dict) -> str:
