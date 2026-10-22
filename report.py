@@ -1,0 +1,199 @@
+"""Static report page (docs/report.html) for GitHub Pages."""
+from __future__ import annotations
+
+import html
+import json
+from datetime import datetime
+from pathlib import Path
+
+# Fixed categorical order (validated palette): colour follows the airline, never its rank.
+COLORS_LIGHT = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"]
+COLORS_DARK = ["#3987e5", "#d95926", "#199e70", "#c98500"]
+
+
+def _series(store, cfg):
+    """Cheapest core price per day per airline + Google's typical band + alert markers."""
+    days: list[str] = []
+    per_airline: dict[str, dict[str, float]] = {c: {} for c in cfg["airlines"]}
+    for r in store.db.execute("SELECT day, airline, MIN(price) p FROM quotes WHERE search_id='core'"
+                              " AND preferred=0 GROUP BY day, airline ORDER BY day"):
+        if r["day"] not in days:
+            days.append(r["day"])
+        if r["airline"] in per_airline:
+            per_airline[r["airline"]][r["day"]] = r["p"]
+    band = {r["day"]: (r["lo"], r["hi"]) for r in store.db.execute(
+        "SELECT day, MIN(typical_low) lo, MAX(typical_high) hi FROM searches WHERE search_id='core' GROUP BY day")}
+    alerts = [{"day": r["ts"][:10], "airline": r["airline"], "price": r["price"]}
+              for r in store.db.execute("SELECT ts, airline, price FROM alerts WHERE kind='deal' AND search_id='core'")]
+    return {
+        "days": days,
+        "airlines": [{"code": c, "name": n, "prices": [per_airline[c].get(d) for d in days]}
+                     for c, n in cfg["airlines"].items()],
+        "bandLow": [band.get(d, (None, None))[0] for d in days],
+        "bandHigh": [band.get(d, (None, None))[1] for d in days],
+        "alerts": alerts,
+    }
+
+
+def _table(store, cfg) -> str:
+    rows = []
+    for s in cfg["searches"]:
+        anyq = {r["airline"]: r for r in store.latest_quotes(s["id"])}
+        pref = {r["airline"]: r for r in store.latest_quotes(s["id"], preferred=1)}
+        cells = []
+        for code in cfg["airlines"]:
+            a, p = anyq.get(code), pref.get(code)
+            if not a:
+                cells.append('<td class="na">–</td>')
+                continue
+            txt = f'S${a["price"]:,.0f}<small>{html.escape(a["flights"])} {a["depart"][-5:]}</small>'
+            if p and p["flights"] != a["flights"]:
+                txt += f'<small class="pref">pm/eve: S${p["price"]:,.0f} {p["depart"][-5:]}</small>'
+            cells.append(f"<td>{txt}</td>")
+        rows.append(f'<tr><th scope="row">{html.escape(s["label"])}</th>{"".join(cells)}</tr>')
+    head = "".join(f'<th scope="col">{html.escape(cfg["short_names"].get(c, c))}</th>' for c in cfg["airlines"])
+    return f'<table><thead><tr><th scope="col">Trip</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
+
+
+def build(store, cfg, path: str | Path, now: datetime) -> None:
+    data = _series(store, cfg)
+    page = TEMPLATE.replace("__DATA__", json.dumps(data)) \
+        .replace("__TABLE__", _table(store, cfg)) \
+        .replace("__UPDATED__", f"{now:%d %b %Y, %H:%M} SGT") \
+        .replace("__COLORS_LIGHT__", json.dumps(COLORS_LIGHT)) \
+        .replace("__COLORS_DARK__", json.dumps(COLORS_DARK)) \
+        .replace("__BAG__", f'{" & ".join(cfg["short_names"][c] for c in cfg.get("budget_airlines", []))}: '
+                            f'cheapest fare has no checked bag or seat choice (~S${cfg.get("bag_fee_sgd", 40):.0f} '
+                            "each way for a 20kg bag).")
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    Path(path).write_text(page)
+
+
+TEMPLATE = r"""<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIN⇄Bali Fares</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface: #fcfcfb; --surface-2: #f3f2ef; --text: #0b0b0b; --text-2: #52514e; --muted: #8a8984;
+  --grid: #e6e5e1; --band: rgba(120,120,110,.16); --border: #dcdbd6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface: #1a1a19; --surface-2: #242423; --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e88;
+    --grid: #333331; --band: rgba(200,200,190,.14); --border: #3a3a38;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface: #1a1a19; --surface-2: #242423; --text: #f0efec; --text-2: #c3c2b7; --muted: #8f8e88;
+  --grid: #333331; --band: rgba(200,200,190,.14); --border: #3a3a38;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--surface); color: var(--text);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 760px; margin: 0 auto; padding: 20px 16px 40px; }
+h1 { font-size: 1.3rem; margin: 0 0 4px; }
+h2 { font-size: 1.05rem; margin: 28px 0 8px; }
+p.sub { color: var(--text-2); margin: 0 0 16px; }
+.chart-wrap { position: relative; height: 320px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 0 0; padding: 0; list-style: none;
+  color: var(--text-2); font-size: .85rem; }
+.legend i { display: inline-block; width: 14px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.legend i.band { height: 10px; background: var(--band); }
+.legend i.tri { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent;
+  border-bottom: 10px solid var(--text-2); border-radius: 0; }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: .9rem; }
+th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: top; }
+thead th { color: var(--text-2); font-weight: 600; font-size: .8rem; }
+tbody th { font-weight: 500; }
+td small { display: block; color: var(--muted); font-size: .75rem; }
+td small.pref { color: var(--text-2); }
+td.na { color: var(--muted); }
+.note { color: var(--text-2); font-size: .85rem; background: var(--surface-2); padding: 10px 12px; border-radius: 8px; }
+.empty { color: var(--text-2); padding: 40px 0; text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Singapore ⇄ Bali fares</h1>
+  <p class="sub">Wedding weekend · Fri 3 → Sun 5 Sep 2027 · per person, nonstop, cheapest fare type · updated __UPDATED__</p>
+
+  <h2>Round trip Fri 3 → Sun 5 Sep: cheapest per day</h2>
+  <div class="chart-wrap"><canvas id="chart" aria-label="Cheapest round-trip price per airline per day"></canvas></div>
+  <ul class="legend" id="legend"></ul>
+
+  <h2>Latest prices</h2>
+  <div class="scroll">__TABLE__</div>
+  <p class="note">"pm/eve" = cheapest flight landing in Bali (or leaving Bali) after 12:00, when different from the overall cheapest.<br>🧳 __BAG__</p>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const DATA = __DATA__;
+const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light'
+  || document.documentElement.dataset.theme === 'dark';
+const COLORS = dark ? __COLORS_DARK__ : __COLORS_LIGHT__;
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmtDay = d => new Date(d + 'T00:00:00').toLocaleDateString('en-SG', {day: 'numeric', month: 'short'});
+const legend = document.getElementById('legend');
+
+if (!DATA.days.length || typeof Chart === 'undefined') {
+  document.querySelector('.chart-wrap').innerHTML = '<p class="empty">No data yet: the chart fills in after the first daily run.</p>';
+} else {
+  const datasets = [
+    {label: 'Typical range (low)', data: DATA.bandLow, borderWidth: 0, pointRadius: 0, fill: false, spanGaps: true},
+    {label: "Google's typical range", data: DATA.bandHigh, borderWidth: 0, pointRadius: 0,
+     backgroundColor: css('--band'), fill: '-1', spanGaps: true},
+  ];
+  DATA.airlines.forEach((a, i) => {
+    if (!a.prices.some(p => p != null)) return;
+    datasets.push({label: a.name, data: a.prices, borderColor: COLORS[i], backgroundColor: COLORS[i],
+      borderWidth: 2, pointRadius: DATA.days.length < 20 ? 3 : 0, pointHoverRadius: 5, tension: 0.2, spanGaps: true});
+    legend.insertAdjacentHTML('beforeend', `<li><i style="background:${COLORS[i]}"></i>${a.name}</li>`);
+  });
+  if (DATA.alerts.length) {
+    const idx = Object.fromEntries(DATA.airlines.map((a, i) => [a.code, i]));
+    datasets.push({label: 'Alert sent', type: 'scatter', pointStyle: 'triangle', pointRadius: 7,
+      pointBorderColor: css('--surface'), pointBorderWidth: 2,
+      pointBackgroundColor: DATA.alerts.map(a => COLORS[idx[a.airline]] || css('--text-2')),
+      data: DATA.alerts.map(a => ({x: a.day, y: a.price, airline: a.airline}))});
+    legend.insertAdjacentHTML('beforeend', '<li><i class="tri"></i>Alert sent</li>');
+  }
+  legend.insertAdjacentHTML('beforeend', `<li><i class="band"></i>Google's typical range</li>`);
+
+  new Chart(document.getElementById('chart'), {
+    type: 'line',
+    data: {labels: DATA.days, datasets},
+    options: {
+      responsive: true, maintainAspectRatio: false, animation: false,
+      interaction: {mode: 'index', intersect: false},
+      plugins: {
+        legend: {display: false},
+        tooltip: {
+          filter: item => item.dataset.label !== 'Typical range (low)' && item.parsed.y != null,
+          callbacks: {
+            title: items => fmtDay(items[0].label),
+            label: item => item.dataset.label === "Google's typical range"
+              ? `Typical: S$${DATA.bandLow[item.dataIndex]}–${item.parsed.y}`
+              : `${item.dataset.label}: S$${Math.round(item.parsed.y)}`,
+          },
+        },
+      },
+      scales: {
+        x: {ticks: {color: css('--text-2'), maxTicksLimit: 6, callback: function(v) { return fmtDay(this.getLabelForValue(v)); }},
+            grid: {display: false}, border: {color: css('--grid')}},
+        y: {ticks: {color: css('--text-2'), callback: v => 'S$' + v, maxTicksLimit: 6},
+            grid: {color: css('--grid')}, border: {display: false}},
+      },
+    },
+  });
+}
+</script>
+</body>
+</html>
+"""

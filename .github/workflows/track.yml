@@ -1,0 +1,64 @@
+name: track
+
+on:
+  schedule:
+    - cron: "7 1 * * *"       # 09:07 SGT daily
+    - cron: "7 13 * 3-9 *"    # 21:07 SGT, Mar–Sep only (main.py also skips before 1 Mar 2027)
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: What to do
+        type: choice
+        default: run
+        options:
+          - run            # normal run (morning slot)
+          - run-digest     # normal run + weekly digest now
+          - dry-run        # sample data, no API calls, prints messages only
+          - test-admin     # send a test message to the admin chat
+          - welcome        # post + pin the welcome message in the guest channel
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tracker
+  cancel-in-progress: false
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHANNEL_ID: ${{ secrets.TELEGRAM_CHANNEL_ID }}
+      TELEGRAM_ADMIN_CHAT_ID: ${{ secrets.TELEGRAM_ADMIN_CHAT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Run
+        run: |
+          case "${{ github.event_name }}:${{ inputs.mode }}" in
+            schedule:*)              python main.py --slot auto ;;
+            *:run-digest)            python main.py --slot morning --digest ;;
+            *:dry-run)               python main.py --dry-run --slot morning --digest ;;
+            *:test-admin)            python main.py --test-admin ;;
+            *:welcome)               python main.py --welcome ;;
+            *)                       python main.py --slot morning ;;
+          esac
+
+      - name: Commit data and report
+        if: always()
+        run: |
+          git config user.name "flight-tracker-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data docs
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git commit -m "data: $(date -u +%Y-%m-%dT%H:%MZ) run"
+          for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 5; done
+          exit 1
