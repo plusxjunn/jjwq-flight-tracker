@@ -18,7 +18,9 @@ jobs:
         shell: python
         run: |
           import base64, gzip, json, os, requests
-          key = os.environ["SERPAPI_KEY"]
+          raw = os.environ["SERPAPI_KEY"]
+          key = raw.strip()
+          print(f"key diag: len={len(raw)} stripped_len={len(key)} hex={all(c in '0123456789abcdef' for c in key)}")
           params = dict(engine="google_flights", departure_id="SIN", arrival_id="DPS",
                         outbound_date="2027-09-03", return_date="2027-09-05", type="1",
                         currency="SGD", gl="sg", hl="en", adults="1", travel_class="1",
