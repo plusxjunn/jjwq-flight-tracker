@@ -1,0 +1,104 @@
+# SIN ⇄ DPS wedding flight tracker — all prices per person, economy, 1 adult, nonstop.
+# Google Flights shows the cheapest fare type for each airline (Scoot's basic fare,
+# SQ Economy Lite, KLM/Garuda's lowest economy fare).
+
+origin: SIN
+destination: DPS
+currency: SGD
+gl: sg
+hl: en
+
+# Airlines we track (operating carrier, from the flight number prefix).
+airlines:
+  TR: Scoot
+  SQ: Singapore Airlines
+  KL: KLM
+  GA: Garuda Indonesia
+
+# Short names for guest messages.
+short_names:
+  TR: Scoot
+  SQ: SQ
+  KL: KLM
+  GA: Garuda
+
+# Airlines whose cheapest fare has no checked bag / seat choice.
+budget_airlines: [TR]
+bag_fee_sgd: 40          # rough 20kg bag add-on, each way — check at booking
+
+# Not tracked, but tell the admin chat if they start flying the route nonstop again.
+# (Indonesia AirAsia reportedly left Singapore in July 2026.)
+watch_airlines:
+  QZ: Indonesia AirAsia
+  AK: AirAsia
+
+# Each entry = one SerpApi search (1 call). `slots` = which daily runs include it.
+searches:
+  - id: core
+    label: Fri 3 Sep → Sun 5 Sep
+    type: round_trip
+    outbound_date: 2027-09-03
+    return_date: 2027-09-05
+    slots: [morning, evening]
+  - id: flex
+    label: Thu 2 Sep → Mon 6 Sep
+    type: round_trip
+    outbound_date: 2027-09-02
+    return_date: 2027-09-06
+    slots: [morning]
+  - id: out_wed
+    group: out
+    label: SIN→Bali Wed 1 Sep (one-way)
+    type: one_way
+    direction: out
+    outbound_date: 2027-09-01
+    slots: [morning]
+  - id: out_fri
+    group: out
+    label: SIN→Bali Fri 3 Sep (one-way)
+    type: one_way
+    direction: out
+    outbound_date: 2027-09-03
+    slots: [morning]
+  - id: back_sun
+    group: back
+    label: Bali→SIN Sun 5 Sep (one-way)
+    type: one_way
+    direction: back
+    outbound_date: 2027-09-05
+    slots: [morning]
+  - id: back_mon
+    group: back
+    label: Bali→SIN Mon 6 Sep (one-way)
+    type: one_way
+    direction: back
+    outbound_date: 2027-09-06
+    slots: [morning]
+
+# "After-work" preferred times (local time; SIN and Bali are both UTC+8).
+time_windows:
+  out_arrive: ["12:00", "23:59"]    # land in Bali afternoon/evening
+  back_depart: ["12:00", "23:59"]   # leave Bali afternoon/night
+
+schedule:
+  twice_daily_from: 2027-03-01      # evening (21:07 SGT) run starts on this date
+  end_date: 2027-09-03              # no runs after this date
+  digest_weekday: 6                 # 0=Mon … 6=Sun
+
+quota:
+  monthly_limit: 235                # SerpApi free plan = 250; keep a buffer
+  warn_at: 200
+
+rules:
+  target_price: null                # e.g. 250 — optional extra "target hit" rule (core trip)
+  cooldown_hours: 72
+  cooldown_extra_drop: 0.05         # re-alert inside cooldown if a further 5% drop
+  history_min_days: 14
+  history_window_days: 30
+  history_below_median: 0.10
+  sharp_drop: 0.12
+  climbing_above_median: 0.15
+  climbing_days: 3
+  hard_deadline: 2027-05-31
+
+report_url: https://plusxjunn.github.io/jjwq-flight-tracker/report.html

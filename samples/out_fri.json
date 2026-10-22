@@ -1,0 +1,614 @@
+{
+ "search_metadata": {
+  "id": "6ad9c4292560866d329ec7cd",
+  "status": "Success",
+  "json_endpoint": "https://serpapi.com/searches/QuiVKW00iZj1oP_7c12KhbZhBYFU3PAFJCh1NL4jklo/6ad9c4292560866d329ec7cd.json",
+  "markdown_endpoint": "https://serpapi.com/searches/QuiVKW00iZj1oP_7c12KhbZhBYFU3PAFJCh1NL4jklo/6ad9c4292560866d329ec7cd.md",
+  "created_at": "2026-10-22 08:07:05 UTC",
+  "processed_at": "2026-10-22 08:07:05 UTC",
+  "google_flights_url": "https://www.google.com/travel/flights?hl=en&gl=sg&curr=SGD&tfs=CBwQAhogEgoyMDI3LTA5LTAzKABqBwgBEgNTSU5yBwgBEgNEUFNAAUgBcAGYAQI&tfu=EgIIAQ",
+  "raw_html_file": "https://serpapi.com/searches/QuiVKW00iZj1oP_7c12KhbZhBYFU3PAFJCh1NL4jklo/6ad9c4292560866d329ec7cd.html",
+  "prettify_html_file": "https://serpapi.com/searches/QuiVKW00iZj1oP_7c12KhbZhBYFU3PAFJCh1NL4jklo/6ad9c4292560866d329ec7cd.prettify",
+  "total_time_taken": 0.78
+ },
+ "search_parameters": {
+  "engine": "google_flights",
+  "hl": "en",
+  "gl": "sg",
+  "type": "2",
+  "departure_id": "SIN",
+  "arrival_id": "DPS",
+  "outbound_date": "2027-09-03",
+  "travel_class": 1,
+  "adults": 1,
+  "stops": 1,
+  "currency": "SGD"
+ },
+ "best_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 17:00"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 19:35"
+     },
+     "duration": 155,
+     "airplane": "Boeing 777",
+     "airline": "KLM",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/KL.png",
+     "travel_class": "Economy",
+     "flight_number": "KL 835",
+     "legroom": "31 in",
+     "extensions": [
+      "Average legroom (31 in)",
+      "Wi-Fi for a fee",
+      "In-seat USB outlet",
+      "On-demand video",
+      "Carbon emissions estimate: 144 kg"
+     ]
+    }
+   ],
+   "total_duration": 155,
+   "carbon_emissions": {
+    "this_flight": 144000,
+    "typical_for_this_route": 117000,
+    "difference_percent": 23
+   },
+   "price": 151,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/KL.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZMVERnek5Sb0tDS3gxRUFJYUExTkhSRGdjY1BsYiIsW1siU0lOIiwiMjAyNy0wOS0wMyIsIkRQUyIsbnVsbCwiS0wiLCI4MzUiXV1d"
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 15:55"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 18:40"
+     },
+     "duration": 165,
+     "airplane": "Boeing 787",
+     "airline": "Scoot",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+     "travel_class": "Economy",
+     "flight_number": "TR 282",
+     "legroom": "30 in",
+     "extensions": [
+      "Average legroom (30 in)",
+      "Wi-Fi for a fee",
+      "In-seat power outlet",
+      "Carbon emissions estimate: 117 kg"
+     ]
+    }
+   ],
+   "total_duration": 165,
+   "carbon_emissions": {
+    "this_flight": 118000,
+    "typical_for_this_route": 117000,
+    "difference_percent": 1
+   },
+   "price": 169,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZVVWpJNE1ob0xDTFNEQVJBQ0dnTlRSMFE0SEhEN1pnPT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlRSIiwiMjgyIl1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 14:00"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 16:35"
+     },
+     "duration": 155,
+     "airplane": "Airbus A320neo",
+     "airline": "Scoot",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+     "travel_class": "Economy",
+     "flight_number": "TR 242",
+     "legroom": "28 in",
+     "extensions": [
+      "Below average legroom (28 in)",
+      "Carbon emissions estimate: 114 kg"
+     ]
+    }
+   ],
+   "total_duration": 155,
+   "carbon_emissions": {
+    "this_flight": 114000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -3
+   },
+   "price": 203,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZVVWpJME1ob0xDUHlkQVJBQ0dnTlRSMFE0SEhEamV3PT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlRSIiwiMjQyIl1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 09:40"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 12:35"
+     },
+     "duration": 175,
+     "airplane": "Boeing 737",
+     "airline": "Garuda Indonesia",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/GA.png",
+     "travel_class": "Economy",
+     "flight_number": "GA 843",
+     "legroom": "31 in",
+     "extensions": [
+      "Average legroom (31 in)",
+      "On-demand video",
+      "Carbon emissions estimate: 159 kg"
+     ]
+    }
+   ],
+   "total_duration": 175,
+   "carbon_emissions": {
+    "this_flight": 160000,
+    "typical_for_this_route": 117000,
+    "difference_percent": 37
+   },
+   "price": 267,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/GA.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZIUVRnME14b0xDUExQQVJBQ0dnTlRSMFE0SEhEeW9nRT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIkdBIiwiODQzIl1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 09:15"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 12:00"
+     },
+     "duration": 165,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 938",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 165,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZUVVRrek9EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTM4Il1dXQ=="
+  }
+ ],
+ "other_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 21:15"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-04 00:05"
+     },
+     "duration": 170,
+     "airplane": "Airbus A320neo",
+     "airline": "Scoot",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+     "travel_class": "Economy",
+     "flight_number": "TR 346",
+     "legroom": "28 in",
+     "extensions": [
+      "Below average legroom (28 in)",
+      "Carbon emissions estimate: 114 kg"
+     ]
+    }
+   ],
+   "total_duration": 170,
+   "carbon_emissions": {
+    "this_flight": 114000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -3
+   },
+   "price": 203,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZVVWpNME5ob0xDUHlkQVJBQ0dnTlRSMFE0SEhEamV3PT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlRSIiwiMzQ2Il1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 07:30"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 10:15"
+     },
+     "duration": 165,
+     "airplane": "Boeing 787",
+     "airline": "Scoot",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+     "travel_class": "Economy",
+     "flight_number": "TR 280",
+     "legroom": "31 in",
+     "extensions": [
+      "Average legroom (31 in)",
+      "Wi-Fi for a fee",
+      "In-seat power outlet",
+      "Carbon emissions estimate: 117 kg"
+     ]
+    }
+   ],
+   "total_duration": 165,
+   "carbon_emissions": {
+    "this_flight": 118000,
+    "typical_for_this_route": 117000,
+    "difference_percent": 1
+   },
+   "price": 228,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZVVWpJNE1Cb0xDTUN4QVJBQ0dnTlRSMFE0SEhDS2l3RT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlRSIiwiMjgwIl1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 10:15"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 13:05"
+     },
+     "duration": 170,
+     "airplane": "Boeing 787",
+     "airline": "Scoot",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+     "travel_class": "Economy",
+     "flight_number": "TR 288",
+     "legroom": "30 in",
+     "extensions": [
+      "Average legroom (30 in)",
+      "Wi-Fi for a fee",
+      "In-seat power outlet",
+      "Carbon emissions estimate: 117 kg"
+     ]
+    }
+   ],
+   "total_duration": 170,
+   "carbon_emissions": {
+    "this_flight": 118000,
+    "typical_for_this_route": 117000,
+    "difference_percent": 1
+   },
+   "price": 228,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZVVWpJNE9Cb0xDTUN4QVJBQ0dnTlRSMFE0SEhDS2l3RT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlRSIiwiMjg4Il1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 06:20"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 08:55"
+     },
+     "duration": 155,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 934",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 155,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZUVVRrek5EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTM0Il1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 08:20"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 11:00"
+     },
+     "duration": 160,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 936",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 160,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZUVVRrek5qZ2MiLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTM2Il1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 16:10"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 18:50"
+     },
+     "duration": 160,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 944",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 160,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZUVVRrME5EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTQ0Il1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 17:45"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 20:25"
+     },
+     "duration": 160,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 946",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 160,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZUVVRrME5qZ2MiLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTQ2Il1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 21:35"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-04 00:10"
+     },
+     "duration": 155,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 948",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 155,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "booking_token": "WyJDalJJYjIxSWIyWnhWRzlHTkZWQlJGTldOMUZDUnkwdExTMHRMVzlyYkcweE5TMXVNa0ZCUVVGQlIzSmFlRU52UTNGSVozbEJFZ1ZUVVRrME9EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTQ4Il1dXQ=="
+  }
+ ],
+ "price_insights": {
+  "lowest_price": 151,
+  "price_level": "typical",
+  "typical_price_range": [
+   135,
+   225
+  ],
+  "price_history": [
+   [
+    1791820800,
+    151
+   ],
+   [
+    1791907200,
+    151
+   ],
+   [
+    1791993600,
+    151
+   ],
+   [
+    1792080000,
+    151
+   ],
+   [
+    1792166400,
+    151
+   ],
+   [
+    1792252800,
+    151
+   ],
+   [
+    1792339200,
+    151
+   ],
+   [
+    1792425600,
+    151
+   ],
+   [
+    1792512000,
+    151
+   ],
+   [
+    1792598400,
+    151
+   ]
+  ]
+ },
+ "airports": [
+  {
+   "departure": [
+    {
+     "airport": {
+      "id": "SIN",
+      "name": "Singapore Changi Airport"
+     },
+     "city": "Singapore",
+     "country": "Singapore",
+     "country_code": "SG",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTPxNDQYUBDKl_Cnb-2R_TakwdFGzKIpvsMBeDdYwNHK_c2jUY6LVQ5R_mwZDf9hOuu6iHgYjrL87eDZw",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSp10Y3G-u5LPBzRWABhOUD7BGcBspacZc2r31UP6QmzLmyprerN-6BZ5wZkdsDXngRuIYCPQI8Ny3uYjbRegATm48AJfppuLgpsc0mhsE"
+    }
+   ],
+   "arrival": [
+    {
+     "airport": {
+      "id": "DPS",
+      "name": "I Gusti Ngurah Rai International Airport"
+     },
+     "city": "Denpasar",
+     "country": "Indonesia",
+     "country_code": "ID",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSpjCo287YKiDxrbQlSm3Af70o71dUjCPZ6_dVDyf-1TqPjvjrZ37t33Q_7iDHhYS48wNu0LJdENRBRSg",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQFsxUxjHvh4B-OC3MBZsppnugcvv5-mwb1QyUnDEw4ERAN8pQGYpPooKz04neOm3ivuxDBxp0nyrI4S_UEFevemYjK9tdUmJgtUDr1HgQ"
+    }
+   ]
+  }
+ ]
+}
