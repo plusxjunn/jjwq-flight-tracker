@@ -1,5 +1,5 @@
-# One-off: makes a single live SerpApi call for the `core` trip so we can see
-# which carriers appear on SIN-DPS. Manual trigger only. Costs 1 search.
+# One-off: live SerpApi calls to capture sample responses for --dry-run.
+# Manual trigger only. Each search = 1 SerpApi call.
 name: probe
 on:
   workflow_dispatch:
@@ -12,35 +12,33 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
-      - name: Live call (core round-trip, nonstop, no airline filter)
+      - name: Live calls (flex + one-ways, nonstop, no airline filter)
         env:
           SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         shell: python
         run: |
           import base64, gzip, json, os, requests
-          raw = os.environ["SERPAPI_KEY"]
-          key = raw.strip()
-          print(f"key diag: len={len(raw)} stripped_len={len(key)} hex={all(c in '0123456789abcdef' for c in key)}")
-          params = dict(engine="google_flights", departure_id="SIN", arrival_id="DPS",
-                        outbound_date="2027-09-03", return_date="2027-09-05", type="1",
-                        currency="SGD", gl="sg", hl="en", adults="1", travel_class="1",
-                        stops="1", api_key=key)
-          r = requests.get("https://serpapi.com/search.json", params=params, timeout=60)
-          print("HTTP", r.status_code)
-          text = r.text.replace(key, "***")
-          data = json.loads(text)
-          blob = base64.b64encode(gzip.compress(text.encode())).decode()
-          print("=====RAW_GZ_B64_BEGIN=====")
-          for i in range(0, len(blob), 900):
-              print(blob[i:i+900])
-          print("=====RAW_GZ_B64_END=====")
-          print("error:", data.get("error"))
-          print("price_insights:", json.dumps(data.get("price_insights", {}), indent=1)[:1500])
-          print("google_flights_url:", data.get("search_metadata", {}).get("google_flights_url"))
-          for group in ("best_flights", "other_flights"):
-              for it in data.get(group, []):
-                  legs = it.get("flights", [])
-                  print(group, "| S$", it.get("price"), "|",
-                        " + ".join(f'{l.get("airline")} {l.get("flight_number")} '
-                                   f'{l["departure_airport"]["time"]}->{l["arrival_airport"]["time"]}'
-                                   for l in legs))
+          key = os.environ["SERPAPI_KEY"].strip()
+          base = dict(engine="google_flights", currency="SGD", gl="sg", hl="en", adults="1",
+                      travel_class="1", stops="1", api_key=key)
+          searches = {
+            "flex": dict(departure_id="SIN", arrival_id="DPS", outbound_date="2027-09-02", return_date="2027-09-06", type="1"),
+            "out_wed": dict(departure_id="SIN", arrival_id="DPS", outbound_date="2027-09-01", type="2"),
+            "out_fri": dict(departure_id="SIN", arrival_id="DPS", outbound_date="2027-09-03", type="2"),
+            "back_sun": dict(departure_id="DPS", arrival_id="SIN", outbound_date="2027-09-05", type="2"),
+            "back_mon": dict(departure_id="DPS", arrival_id="SIN", outbound_date="2027-09-06", type="2"),
+          }
+          for sid, p in searches.items():
+              r = requests.get("https://serpapi.com/search.json", params={**base, **p}, timeout=60)
+              text = r.text.replace(key, "***")
+              data = json.loads(text)
+              print(f"##### {sid} HTTP {r.status_code} error={data.get('error')}")
+              for g in ("best_flights", "other_flights"):
+                  for it in data.get(g, []):
+                      l = it["flights"][0]
+                      print(f"  {sid} S${it.get('price')} {l.get('flight_number')} {l['departure_airport']['time']}->{l['arrival_airport']['time']}")
+              blob = base64.b64encode(gzip.compress(text.encode(), 9)).decode()
+              print(f"=====BEGIN {sid}=====")
+              for i in range(0, len(blob), 900):
+                  print(blob[i:i+900])
+              print(f"=====END {sid}=====")
