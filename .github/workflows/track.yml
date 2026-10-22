@@ -57,6 +57,7 @@ jobs:
         run: |
           git config user.name "flight-tracker-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p data docs
           git add data docs
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
           git commit -m "data: $(date -u +%Y-%m-%dT%H:%MZ) run"
