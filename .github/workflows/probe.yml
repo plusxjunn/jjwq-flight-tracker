@@ -4,10 +4,14 @@ name: probe
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -37,8 +41,13 @@ jobs:
                   for it in data.get(g, []):
                       l = it["flights"][0]
                       print(f"  {sid} S${it.get('price')} {l.get('flight_number')} {l['departure_airport']['time']}->{l['arrival_airport']['time']}")
-              blob = base64.b64encode(gzip.compress(text.encode(), 9)).decode()
-              print(f"=====BEGIN {sid}=====")
-              for i in range(0, len(blob), 900):
-                  print(blob[i:i+900])
-              print(f"=====END {sid}=====")
+              os.makedirs("samples", exist_ok=True)
+              open(f"samples/{sid}.json", "w").write(json.dumps(data, indent=1))
+      - name: Push samples to probe-samples branch
+        run: |
+          git config user.name "flight-tracker-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b probe-samples
+          git add samples
+          git commit -m "probe: sample responses"
+          git push -f origin probe-samples
