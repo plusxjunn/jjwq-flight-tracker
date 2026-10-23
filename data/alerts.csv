@@ -1,0 +1,8 @@
+id,ts,kind,search_id,airline,price,reasons
+1,2026-10-23T12:17:01+08:00,deal,core,KL,233.0,google_low
+2,2026-10-23T12:17:01+08:00,deal,core,TR,297.0,google_low
+3,2026-10-23T12:17:01+08:00,deal,flex,TR,252.0,google_low
+4,2026-10-23T12:17:01+08:00,deal,flex,KL,265.0,google_low
+5,2026-10-23T12:17:01+08:00,deal,out_wed,TR,126.0,google_low
+6,2026-10-23T12:17:01+08:00,deal,back_sun,KL,105.0,google_low
+7,2026-10-23T12:17:01+08:00,deal,back_mon,KL,105.0,google_low
