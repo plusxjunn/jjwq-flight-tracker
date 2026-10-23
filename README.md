@@ -31,6 +31,10 @@ cheapest **afternoon/evening** option (lands in Bali 12:00–23:59 / leaves Bali
 | now → 28 Feb 2027 | 6 | 186 |
 | 1 Mar → 3 Sep 2027 | 6 + 1 (evening `core`) | 217 |
 
+GitHub sometimes starts scheduled runs late or drops them, so each daily slot has a **backup**
+2½ hours later (11:37 SGT, and 23:37 SGT from March). The backup exits straight away, with no
+API calls, if that slot already ran successfully that day.
+
 A hard guard skips any run that would take the month past **235** calls and tells the admin chat
 (leaves ~15 for manual runs). A warning goes to the admin chat at 200. Every call is logged in
 `data/tracker.db` (`api_calls`). Runs stop automatically after 3 Sep 2027; disable the workflow after.

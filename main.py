@@ -255,6 +255,8 @@ def main(argv=None) -> int:
     ap.add_argument("--digest", action="store_true", help="also send the weekly digest now")
     ap.add_argument("--welcome", action="store_true", help="post + pin the welcome message, then exit")
     ap.add_argument("--test-admin", action="store_true", help="send a test message to the admin chat, then exit")
+    ap.add_argument("--skip-if-done", action="store_true",
+                    help="exit without API calls if this slot already ran today (for backup schedules)")
     ap.add_argument("--now", help="override current time (ISO, SGT) for testing")
     args = ap.parse_args(argv)
 
@@ -292,6 +294,11 @@ def main(argv=None) -> int:
         store = Store(DB_PATH)
         provider = SerpApiProvider(os.environ["SERPAPI_KEY"], cfg["currency"], cfg["gl"], cfg["hl"])
         report_path = ROOT / "docs" / "report.html"
+
+    if args.skip_if_done and store.slot_done(slot, now.date()):
+        print(f"The {slot} run already happened today; nothing to do.")
+        store.close()
+        return 0
 
     try:
         status = run(cfg, store, provider, notifier, now, slot, args.dry_run, args.digest, report_path)

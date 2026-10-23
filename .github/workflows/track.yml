@@ -3,7 +3,9 @@ name: track
 on:
   schedule:
     - cron: "7 1 * * *"       # 09:07 SGT daily
+    - cron: "37 3 * * *"      # 11:37 SGT backup: runs only if the 09:07 run didn't happen
     - cron: "7 13 * 3-9 *"    # 21:07 SGT, Mar–Sep only (main.py also skips before 1 Mar 2027)
+    - cron: "37 15 * 3-9 *"   # 23:37 SGT backup for the evening run
   workflow_dispatch:
     inputs:
       mode:
@@ -44,7 +46,7 @@ jobs:
       - name: Run
         run: |
           case "${{ github.event_name }}:${{ inputs.mode }}" in
-            schedule:*)              python main.py --slot auto ;;
+            schedule:*)              python main.py --slot auto --skip-if-done ;;
             *:run-digest)            python main.py --slot morning --digest ;;
             *:dry-run)               python main.py --dry-run --slot morning --digest ;;
             *:test-admin)            python main.py --test-admin ;;

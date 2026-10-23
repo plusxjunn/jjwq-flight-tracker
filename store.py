@@ -98,6 +98,12 @@ class Store:
                         (ts.isoformat(), ts.strftime("%Y-%m"), run_id, search_id, int(ok)))
         self.db.commit()
 
+    def slot_done(self, slot: str, day) -> bool:
+        """Has this slot already run successfully (or been quota-skipped) on this SGT day?"""
+        return self.db.execute(
+            "SELECT 1 FROM runs WHERE slot=? AND substr(started_at, 1, 10)=? AND status IN ('ok', 'partial', 'quota_skip')",
+            (slot, day.isoformat())).fetchone() is not None
+
     def calls_this_month(self, ts: datetime) -> int:
         return self.db.execute("SELECT COUNT(*) FROM api_calls WHERE month=?",
                                (ts.strftime("%Y-%m"),)).fetchone()[0]
