@@ -1,15 +1,15 @@
 {
  "search_metadata": {
-  "id": "6ad9c4277ec029055e180804",
+  "id": "6adcb564d23ff818ae7e2e6f",
   "status": "Success",
-  "json_endpoint": "https://serpapi.com/searches/mTrVKzRMo1wy2fZOlaf9tExyUFPFXQZoDIWfApkJdu4/6ad9c4277ec029055e180804.json",
-  "markdown_endpoint": "https://serpapi.com/searches/mTrVKzRMo1wy2fZOlaf9tExyUFPFXQZoDIWfApkJdu4/6ad9c4277ec029055e180804.md",
-  "created_at": "2026-10-22 08:07:03 UTC",
-  "processed_at": "2026-10-22 08:07:03 UTC",
+  "json_endpoint": "https://serpapi.com/searches/_mhNaFqq_PW-kfCCidJwz6ElOTWYXPoYwWKURwd6pEc/6adcb564d23ff818ae7e2e6f.json",
+  "markdown_endpoint": "https://serpapi.com/searches/_mhNaFqq_PW-kfCCidJwz6ElOTWYXPoYwWKURwd6pEc/6adcb564d23ff818ae7e2e6f.md",
+  "created_at": "2026-10-24 13:40:52 UTC",
+  "processed_at": "2026-10-24 13:40:52 UTC",
   "google_flights_url": "https://www.google.com/travel/flights?hl=en&gl=sg&curr=SGD&tfs=CBwQAhogEgoyMDI3LTA5LTAxKABqBwgBEgNTSU5yBwgBEgNEUFNAAUgBcAGYAQI&tfu=EgIIAQ",
-  "raw_html_file": "https://serpapi.com/searches/mTrVKzRMo1wy2fZOlaf9tExyUFPFXQZoDIWfApkJdu4/6ad9c4277ec029055e180804.html",
-  "prettify_html_file": "https://serpapi.com/searches/mTrVKzRMo1wy2fZOlaf9tExyUFPFXQZoDIWfApkJdu4/6ad9c4277ec029055e180804.prettify",
-  "total_time_taken": 1.69
+  "raw_html_file": "https://serpapi.com/searches/_mhNaFqq_PW-kfCCidJwz6ElOTWYXPoYwWKURwd6pEc/6adcb564d23ff818ae7e2e6f.html",
+  "prettify_html_file": "https://serpapi.com/searches/_mhNaFqq_PW-kfCCidJwz6ElOTWYXPoYwWKURwd6pEc/6adcb564d23ff818ae7e2e6f.prettify",
+  "total_time_taken": 4.56
  },
  "search_parameters": {
   "engine": "google_flights",
@@ -60,7 +60,7 @@
    "price": 126,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZVVWpNME5ob0tDT2hoRUFJYUExTkhSRGdjY05KTSIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIzNDYiXV1d"
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ1ZVVWpNME5ob0tDT2hoRUFJYUExTkhSRGdjY00xTSIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIzNDYiXV1d"
   },
   {
    "flights": [
@@ -99,7 +99,7 @@
    "price": 136,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZVVWpJNE1ob0tDTkJwRUFJYUExTkhSRGdjY09KUyIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIyODIiXV1d"
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ1ZVVWpJNE1ob0tDTkJwRUFJYUExTkhSRGdjY054UyIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIyODIiXV1d"
   },
   {
    "flights": [
@@ -139,7 +139,7 @@
    "price": 141,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/KL.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZMVERnek5Sb0tDTVJ0RUFJYUExTkhSRGdjY09sViIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiS0wiLCI4MzUiXV1d"
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ1ZMVERnek5Sb0tDTVJ0RUFJYUExTkhSRGdjY09SViIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiS0wiLCI4MzUiXV1d"
   },
   {
    "flights": [
@@ -178,7 +178,7 @@
    "price": 147,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZVVWpJNE9Cb0tDSnh5RUFJYUExTkhSRGdjY01CWiIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIyODgiXV1d"
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ1ZVVWpJNE9Cb0tDSnh5RUFJYUExTkhSRGdjY0xwWiIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIyODgiXV1d"
   },
   {
    "flights": [
@@ -215,46 +215,7 @@
    "price": 147,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZVVWpJME1ob0tDSnh5RUFJYUExTkhSRGdjY01CWiIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIyNDIiXV1d"
-  },
-  {
-   "flights": [
-    {
-     "departure_airport": {
-      "name": "Singapore Changi Airport",
-      "id": "SIN",
-      "time": "2027-09-01 09:15"
-     },
-     "arrival_airport": {
-      "name": "I Gusti Ngurah Rai International Airport",
-      "id": "DPS",
-      "time": "2027-09-01 12:00"
-     },
-     "duration": 165,
-     "airplane": "Boeing 787",
-     "airline": "Singapore Airlines",
-     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
-     "travel_class": "Economy",
-     "flight_number": "SQ 938",
-     "legroom": "32 in",
-     "extensions": [
-      "Above average legroom (32 in)",
-      "Free Wi-Fi",
-      "In-seat power & USB outlets",
-      "On-demand video",
-      "Carbon emissions estimate: 97 kg"
-     ]
-    }
-   ],
-   "total_duration": 165,
-   "carbon_emissions": {
-    "this_flight": 98000,
-    "typical_for_this_route": 117000,
-    "difference_percent": -16
-   },
-   "type": "One way",
-   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZUVVRrek9EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlNRIiwiOTM4Il1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ1ZVVWpJME1ob0tDSnh5RUFJYUExTkhSRGdjY0xwWiIsW1siU0lOIiwiMjAyNy0wOS0wMSIsIkRQUyIsbnVsbCwiVFIiLCIyNDIiXV1d"
   }
  ],
  "other_flights": [
@@ -277,9 +238,9 @@
      "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
      "travel_class": "Economy",
      "flight_number": "TR 280",
-     "legroom": "31 in",
+     "legroom": "30 in",
      "extensions": [
-      "Average legroom (31 in)",
+      "Average legroom (30 in)",
       "Wi-Fi for a fee",
       "In-seat power outlet",
       "Carbon emissions estimate: 117 kg"
@@ -295,7 +256,7 @@
    "price": 169,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/TR.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZVVWpJNE1Cb0xDTFNEQVJBQ0dnTlRSMFE0SEhEN1pnPT0iLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlRSIiwiMjgwIl1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ1ZVVWpJNE1Cb0xDTFNEQVJBQ0dnTlRSMFE0SEhEMVpnPT0iLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlRSIiwiMjgwIl1dXQ=="
   },
   {
    "flights": [
@@ -333,7 +294,7 @@
    "price": 248,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/GA.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZIUVRnME14b0xDSWJCQVJBQ0dnTlRSMFE0SEhDaWx3RT0iLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIkdBIiwiODQzIl1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ1ZIUVRnME14b0xDSWJCQVJBQ0dnTlRSMFE0SEhDWWx3RT0iLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIkdBIiwiODQzIl1dXQ=="
   },
   {
    "flights": [
@@ -370,9 +331,10 @@
     "typical_for_this_route": 117000,
     "difference_percent": -16
    },
+   "price": 341,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZUVVRrek5EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlNRIiwiOTM0Il1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ2RUVVRrek5DTXlHZ3NJcTRvQ0VBSWFBMU5IUkRnY2NNclFBUT09IixbWyJTSU4iLCIyMDI3LTA5LTAxIiwiRFBTIixudWxsLCJTUSIsIjkzNCJdXV0="
   },
   {
    "flights": [
@@ -409,9 +371,50 @@
     "typical_for_this_route": 117000,
     "difference_percent": -16
    },
+   "price": 341,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZUVVRrek5qZ2MiLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlNRIiwiOTM2Il1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ2RUVVRrek5pTXlHZ3NJcTRvQ0VBSWFBMU5IUkRnY2NNclFBUT09IixbWyJTSU4iLCIyMDI3LTA5LTAxIiwiRFBTIixudWxsLCJTUSIsIjkzNiJdXV0="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-01 09:15"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-01 12:00"
+     },
+     "duration": 165,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 938",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 165,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "price": 341,
+   "type": "One way",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ2RUVVRrek9DTXlHZ3NJcTRvQ0VBSWFBMU5IUkRnY2NNclFBUT09IixbWyJTSU4iLCIyMDI3LTA5LTAxIiwiRFBTIixudWxsLCJTUSIsIjkzOCJdXV0="
   },
   {
    "flights": [
@@ -448,9 +451,10 @@
     "typical_for_this_route": 117000,
     "difference_percent": -16
    },
+   "price": 341,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZUVVRrME5EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlNRIiwiOTQ0Il1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ2RUVVRrME5DTXlHZ3NJcTRvQ0VBSWFBMU5IUkRnY2NNclFBUT09IixbWyJTSU4iLCIyMDI3LTA5LTAxIiwiRFBTIixudWxsLCJTUSIsIjk0NCJdXV0="
   },
   {
    "flights": [
@@ -487,9 +491,10 @@
     "typical_for_this_route": 117000,
     "difference_percent": -16
    },
+   "price": 341,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZUVVRrME5qZ2MiLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlNRIiwiOTQ2Il1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ2RUVVRrME5pTXlHZ3NJcTRvQ0VBSWFBMU5IUkRnY2NNclFBUT09IixbWyJTSU4iLCIyMDI3LTA5LTAxIiwiRFBTIixudWxsLCJTUSIsIjk0NiJdXV0="
   },
   {
    "flights": [
@@ -526,9 +531,10 @@
     "typical_for_this_route": 117000,
     "difference_percent": -16
    },
+   "price": 341,
    "type": "One way",
    "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
-   "booking_token": "WyJDalJJU0hZMlgxOWhjeTF1ZEd0QlEyNTJZa0ZDUnkwdExTMHRMUzB0TFhaM2JHb3hOVUZCUVVGQlIzSmFlRU5yUlVONlYzTkJFZ1ZUVVRrME9EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDEiLCJEUFMiLG51bGwsIlNRIiwiOTQ4Il1dXQ=="
+   "booking_token": "WyJDalJJYkVaamFtNXZaVXR3TkZGQlNWcHBTRUZDUnkwdExTMHRMUzB0TFhCcWNHOHhPVUZCUVVGQlIzSmpkRmRWVGsxaldESkJFZ2RUVVRrME9DTXlHZ3NJcTRvQ0VBSWFBMU5IUkRnY2NNclFBUT09IixbWyJTSU4iLCIyMDI3LTA5LTAxIiwiRFBTIixudWxsLCJTUSIsIjk0OCJdXV0="
   }
  ],
  "price_insights": {
@@ -585,6 +591,14 @@
    ],
    [
     1792598400,
+    126
+   ],
+   [
+    1792684800,
+    126
+   ],
+   [
+    1792771200,
     126
    ]
   ]

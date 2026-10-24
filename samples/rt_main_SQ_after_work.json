@@ -1,0 +1,130 @@
+{
+ "search_metadata": {
+  "id": "6adcb59bdafa5fc9ff1e877e",
+  "status": "Success",
+  "json_endpoint": "https://serpapi.com/searches/gagSNQO2d2p1Oo558vR5s-5P217YtAXRFT4ZA4dV7_c/6adcb59bdafa5fc9ff1e877e.json",
+  "markdown_endpoint": "https://serpapi.com/searches/gagSNQO2d2p1Oo558vR5s-5P217YtAXRFT4ZA4dV7_c/6adcb59bdafa5fc9ff1e877e.md",
+  "created_at": "2026-10-24 13:41:47 UTC",
+  "processed_at": "2026-10-24 13:41:47 UTC",
+  "google_flights_url": "https://www.google.com/travel/flights?hl=en&gl=sg&curr=SGD&tfs=CBwQAhooEgoyMDI3LTA5LTAzKAAyAlNRQBVIFWoHCAESA1NJTnIHCAESA0RQUxooEgoyMDI3LTA5LTA1KAAyAlNRQBRIFGoHCAESA0RQU3IHCAESA1NJTkABSAFwAZgBAQ&tfu=EgIIAQ",
+  "raw_html_file": "https://serpapi.com/searches/gagSNQO2d2p1Oo558vR5s-5P217YtAXRFT4ZA4dV7_c/6adcb59bdafa5fc9ff1e877e.html",
+  "prettify_html_file": "https://serpapi.com/searches/gagSNQO2d2p1Oo558vR5s-5P217YtAXRFT4ZA4dV7_c/6adcb59bdafa5fc9ff1e877e.prettify",
+  "total_time_taken": 4.27
+ },
+ "search_parameters": {
+  "engine": "google_flights",
+  "hl": "en",
+  "gl": "sg",
+  "type": "1",
+  "departure_id": "SIN",
+  "arrival_id": "DPS",
+  "outbound_date": "2027-09-03",
+  "return_date": "2027-09-05",
+  "travel_class": 1,
+  "adults": 1,
+  "stops": 1,
+  "include_airlines": "SQ",
+  "outbound_times": "21,21",
+  "return_times": "20,20",
+  "currency": "SGD"
+ },
+ "other_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 21:35"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-04 00:10"
+     },
+     "duration": 155,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 948",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 155,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "type": "Round trip",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "departure_token": "WyJDalJJYldkcE4yVnpZWE5DVEVsQlMyVkZPWGRDUnkwdExTMHRMVzk1Wm5NeU1pMXVNa0ZCUVVGQlIzSmpkRm8wUzFaUlNWTkJFZ1ZUVVRrME9EZ2MiLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTQ4Il1dXQ=="
+  }
+ ],
+ "airports": [
+  {
+   "departure": [
+    {
+     "airport": {
+      "id": "SIN",
+      "name": "Singapore Changi Airport"
+     },
+     "city": "Singapore",
+     "country": "Singapore",
+     "country_code": "SG",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTPxNDQYUBDKl_Cnb-2R_TakwdFGzKIpvsMBeDdYwNHK_c2jUY6LVQ5R_mwZDf9hOuu6iHgYjrL87eDZw",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSp10Y3G-u5LPBzRWABhOUD7BGcBspacZc2r31UP6QmzLmyprerN-6BZ5wZkdsDXngRuIYCPQI8Ny3uYjbRegATm48AJfppuLgpsc0mhsE"
+    }
+   ],
+   "arrival": [
+    {
+     "airport": {
+      "id": "DPS",
+      "name": "I Gusti Ngurah Rai International Airport"
+     },
+     "city": "Denpasar",
+     "country": "Indonesia",
+     "country_code": "ID",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSpjCo287YKiDxrbQlSm3Af70o71dUjCPZ6_dVDyf-1TqPjvjrZ37t33Q_7iDHhYS48wNu0LJdENRBRSg",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQFsxUxjHvh4B-OC3MBZsppnugcvv5-mwb1QyUnDEw4ERAN8pQGYpPooKz04neOm3ivuxDBxp0nyrI4S_UEFevemYjK9tdUmJgtUDr1HgQ"
+    }
+   ]
+  },
+  {
+   "departure": [
+    {
+     "airport": {
+      "id": "DPS",
+      "name": "I Gusti Ngurah Rai International Airport"
+     },
+     "city": "Denpasar",
+     "country": "Indonesia",
+     "country_code": "ID",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSpjCo287YKiDxrbQlSm3Af70o71dUjCPZ6_dVDyf-1TqPjvjrZ37t33Q_7iDHhYS48wNu0LJdENRBRSg",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQFsxUxjHvh4B-OC3MBZsppnugcvv5-mwb1QyUnDEw4ERAN8pQGYpPooKz04neOm3ivuxDBxp0nyrI4S_UEFevemYjK9tdUmJgtUDr1HgQ"
+    }
+   ],
+   "arrival": [
+    {
+     "airport": {
+      "id": "SIN",
+      "name": "Singapore Changi Airport"
+     },
+     "city": "Singapore",
+     "country": "Singapore",
+     "country_code": "SG",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTPxNDQYUBDKl_Cnb-2R_TakwdFGzKIpvsMBeDdYwNHK_c2jUY6LVQ5R_mwZDf9hOuu6iHgYjrL87eDZw",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSp10Y3G-u5LPBzRWABhOUD7BGcBspacZc2r31UP6QmzLmyprerN-6BZ5wZkdsDXngRuIYCPQI8Ny3uYjbRegATm48AJfppuLgpsc0mhsE"
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,172 @@
+{
+ "search_metadata": {
+  "id": "6adcb57a9361511ab6fddb27",
+  "status": "Success",
+  "json_endpoint": "https://serpapi.com/searches/0Ul8AwmcG-Nyvm_Dw8cpuyocWryRycCUK0DMOo_jsLI/6adcb57a9361511ab6fddb27.json",
+  "markdown_endpoint": "https://serpapi.com/searches/0Ul8AwmcG-Nyvm_Dw8cpuyocWryRycCUK0DMOo_jsLI/6adcb57a9361511ab6fddb27.md",
+  "created_at": "2026-10-24 13:41:14 UTC",
+  "processed_at": "2026-10-24 13:41:14 UTC",
+  "google_flights_url": "https://www.google.com/travel/flights?hl=en&gl=sg&curr=SGD&tfs=CBwQAhooEgoyMDI3LTA5LTAzKAAyAlNRQAlICWoHCAESA1NJTnIHCAESA0RQUxooEgoyMDI3LTA5LTA1KAAyAlNRQBRIFGoHCAESA0RQU3IHCAESA1NJTkABSAFwAZgBAQ&tfu=EgIIAQ",
+  "raw_html_file": "https://serpapi.com/searches/0Ul8AwmcG-Nyvm_Dw8cpuyocWryRycCUK0DMOo_jsLI/6adcb57a9361511ab6fddb27.html",
+  "prettify_html_file": "https://serpapi.com/searches/0Ul8AwmcG-Nyvm_Dw8cpuyocWryRycCUK0DMOo_jsLI/6adcb57a9361511ab6fddb27.prettify",
+  "total_time_taken": 6.34
+ },
+ "search_parameters": {
+  "engine": "google_flights",
+  "hl": "en",
+  "gl": "sg",
+  "type": "1",
+  "departure_id": "SIN",
+  "arrival_id": "DPS",
+  "outbound_date": "2027-09-03",
+  "return_date": "2027-09-05",
+  "travel_class": 1,
+  "adults": 1,
+  "stops": 1,
+  "include_airlines": "SQ",
+  "outbound_times": "9,9",
+  "return_times": "20,20",
+  "currency": "SGD"
+ },
+ "other_flights": [
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 09:15"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 12:00"
+     },
+     "duration": 165,
+     "airplane": "Boeing 787",
+     "airline": "Singapore Airlines",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+     "travel_class": "Economy",
+     "flight_number": "SQ 938",
+     "legroom": "32 in",
+     "extensions": [
+      "Above average legroom (32 in)",
+      "Free Wi-Fi",
+      "In-seat power & USB outlets",
+      "On-demand video",
+      "Carbon emissions estimate: 97 kg"
+     ]
+    }
+   ],
+   "total_duration": 165,
+   "carbon_emissions": {
+    "this_flight": 98000,
+    "typical_for_this_route": 117000,
+    "difference_percent": -16
+   },
+   "price": 636,
+   "type": "Round trip",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/SQ.png",
+   "departure_token": "WyJDalJJYzBsUldFVmlhbWRWVFZsQlMybzNPRkZDUnkwdExTMHRMUzF2ZVdkaE55MXVNa0ZCUVVGQlIzSmpkRmh6VDFsMk1qQkJFZ1ZUVVRrek9Cb0xDTER3QXhBQ0dnTlRSMFE0SEhEZWhBTT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIlNRIiwiOTM4Il1dXQ=="
+  },
+  {
+   "flights": [
+    {
+     "departure_airport": {
+      "name": "Singapore Changi Airport",
+      "id": "SIN",
+      "time": "2027-09-03 09:40"
+     },
+     "arrival_airport": {
+      "name": "I Gusti Ngurah Rai International Airport",
+      "id": "DPS",
+      "time": "2027-09-03 12:35"
+     },
+     "duration": 175,
+     "airplane": "Boeing 737",
+     "airline": "Garuda Indonesia",
+     "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/GA.png",
+     "travel_class": "Economy",
+     "flight_number": "GA 843",
+     "ticket_also_sold_by": [
+      "Singapore Airlines"
+     ],
+     "legroom": "31 in",
+     "extensions": [
+      "Average legroom (31 in)",
+      "On-demand video",
+      "Carbon emissions estimate: 159 kg"
+     ]
+    }
+   ],
+   "total_duration": 175,
+   "carbon_emissions": {
+    "this_flight": 160000,
+    "typical_for_this_route": 117000,
+    "difference_percent": 37
+   },
+   "price": 671,
+   "type": "Round trip",
+   "airline_logo": "https://www.gstatic.com/flights/airline_logos/70px/GA.png",
+   "departure_token": "WyJDalJJYzBsUldFVmlhbWRWVFZsQlMybzNPRkZDUnkwdExTMHRMUzF2ZVdkaE55MXVNa0ZCUVVGQlIzSmpkRmh6VDFsMk1qQkJFZ1ZIUVRnME14b0xDTTJMQkJBQ0dnTlRSMFE0SEhDSG1nTT0iLFtbIlNJTiIsIjIwMjctMDktMDMiLCJEUFMiLG51bGwsIkdBIiwiODQzIl1dXQ=="
+  }
+ ],
+ "airports": [
+  {
+   "departure": [
+    {
+     "airport": {
+      "id": "SIN",
+      "name": "Singapore Changi Airport"
+     },
+     "city": "Singapore",
+     "country": "Singapore",
+     "country_code": "SG",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTPxNDQYUBDKl_Cnb-2R_TakwdFGzKIpvsMBeDdYwNHK_c2jUY6LVQ5R_mwZDf9hOuu6iHgYjrL87eDZw",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSp10Y3G-u5LPBzRWABhOUD7BGcBspacZc2r31UP6QmzLmyprerN-6BZ5wZkdsDXngRuIYCPQI8Ny3uYjbRegATm48AJfppuLgpsc0mhsE"
+    }
+   ],
+   "arrival": [
+    {
+     "airport": {
+      "id": "DPS",
+      "name": "I Gusti Ngurah Rai International Airport"
+     },
+     "city": "Denpasar",
+     "country": "Indonesia",
+     "country_code": "ID",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSpjCo287YKiDxrbQlSm3Af70o71dUjCPZ6_dVDyf-1TqPjvjrZ37t33Q_7iDHhYS48wNu0LJdENRBRSg",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQFsxUxjHvh4B-OC3MBZsppnugcvv5-mwb1QyUnDEw4ERAN8pQGYpPooKz04neOm3ivuxDBxp0nyrI4S_UEFevemYjK9tdUmJgtUDr1HgQ"
+    }
+   ]
+  },
+  {
+   "departure": [
+    {
+     "airport": {
+      "id": "DPS",
+      "name": "I Gusti Ngurah Rai International Airport"
+     },
+     "city": "Denpasar",
+     "country": "Indonesia",
+     "country_code": "ID",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSpjCo287YKiDxrbQlSm3Af70o71dUjCPZ6_dVDyf-1TqPjvjrZ37t33Q_7iDHhYS48wNu0LJdENRBRSg",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQFsxUxjHvh4B-OC3MBZsppnugcvv5-mwb1QyUnDEw4ERAN8pQGYpPooKz04neOm3ivuxDBxp0nyrI4S_UEFevemYjK9tdUmJgtUDr1HgQ"
+    }
+   ],
+   "arrival": [
+    {
+     "airport": {
+      "id": "SIN",
+      "name": "Singapore Changi Airport"
+     },
+     "city": "Singapore",
+     "country": "Singapore",
+     "country_code": "SG",
+     "image": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcTPxNDQYUBDKl_Cnb-2R_TakwdFGzKIpvsMBeDdYwNHK_c2jUY6LVQ5R_mwZDf9hOuu6iHgYjrL87eDZw",
+     "thumbnail": "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcSp10Y3G-u5LPBzRWABhOUD7BGcBspacZc2r31UP6QmzLmyprerN-6BZ5wZkdsDXngRuIYCPQI8Ny3uYjbRegATm48AJfppuLgpsc0mhsE"
+    }
+   ]
+  }
+ ]
+}

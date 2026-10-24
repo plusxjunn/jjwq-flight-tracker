@@ -51,19 +51,19 @@ td.na { color: var(--muted); }
 <body>
 <main>
   <h1>Singapore ⇄ Bali fares</h1>
-  <p class="sub">Wedding weekend · Fri 3 → Sun 5 Sep 2027 · per person, nonstop, cheapest fare type · updated 24 Oct 2026, 11:52 SGT</p>
+  <p class="sub">Glamp Nusa, Sat 4 Sep 2027 · direct flights · per person, return · updated 24 Oct 2026, 21:40 SGT</p>
 
-  <h2>Round trip Fri 3 → Sun 5 Sep: cheapest per day</h2>
+  <h2>Main weekend, Fri 3 → Sun 5 Sep: daytime flights, same airline both ways</h2>
   <div class="chart-wrap"><canvas id="chart" aria-label="Cheapest round-trip price per airline per day"></canvas></div>
   <ul class="legend" id="legend"></ul>
 
   <h2>Latest prices</h2>
-  <div class="scroll"><table><thead><tr><th scope="col">Trip</th><th scope="col">Scoot</th><th scope="col">SQ</th><th scope="col">KLM</th><th scope="col">Garuda</th></tr></thead><tbody><tr><th scope="row">Fri 3 Sep → Sun 5 Sep</th><td>S$317<small>TR 282 15:55</small></td><td>S$362<small>SQ 944 16:10</small></td><td>S$233<small>KL 835 17:00</small></td><td>S$409<small>GA 843 09:40</small></td></tr><tr><th scope="row">Thu 2 Sep → Mon 6 Sep</th><td>S$252<small>TR 282 15:55</small></td><td>S$291<small>SQ 944 16:10</small></td><td>S$265<small>KL 835 17:00</small></td><td>S$372<small>GA 843 09:40</small></td></tr><tr><th scope="row">SIN→Bali Wed 1 Sep (one-way)</th><td>S$126<small>TR 346 21:15</small></td><td>S$348<small>SQ 934 06:20</small><small class="pref">pm/eve: S$348 09:15</small></td><td>S$141<small>KL 835 17:00</small></td><td>S$248<small>GA 843 09:40</small></td></tr><tr><th scope="row">SIN→Bali Fri 3 Sep (one-way)</th><td>S$169<small>TR 282 15:55</small></td><td>S$332<small>SQ 934 06:20</small><small class="pref">pm/eve: S$332 09:15</small></td><td>S$151<small>KL 835 17:00</small></td><td>S$267<small>GA 843 09:40</small></td></tr><tr><th scope="row">Bali→SIN Sun 5 Sep (one-way)</th><td>S$128<small>TR 347 01:05</small><small class="pref">pm/eve: S$194 14:05</small></td><td>S$204<small>SQ 949 07:15</small><small class="pref">pm/eve: S$204 12:10</small></td><td>S$105<small>KL 836 20:45</small></td><td>S$270<small>GA 842 14:00</small></td></tr><tr><th scope="row">Bali→SIN Mon 6 Sep (one-way)</th><td>S$128<small>TR 347 01:05</small><small class="pref">pm/eve: S$165 14:05</small></td><td>S$186<small>SQ 935 10:05</small><small class="pref">pm/eve: S$197 12:10</small></td><td>S$105<small>KL 836 20:45</small></td><td>S$231<small>GA 842 14:00</small></td></tr></tbody></table></div>
-  <p class="note">"pm/eve" = cheapest flight landing in Bali (or leaving Bali) after 12:00, when different from the overall cheapest.<br>🧳 Scoot: cheapest fare has no checked bag or seat choice (~S$40 each way for a 20kg bag).</p>
+  <div class="scroll"><table><thead><tr><th scope="col">Return, per person</th><th scope="col">Scoot</th><th scope="col">SQ</th><th scope="col">Garuda</th></tr></thead><tbody><tr><th scope="row">Flights</th><td><small>10:15am → 1:05pm<br>back 7:40pm</small></td><td><small>9:15am → 12:00pm<br>back 8:00pm</small></td><td><small>9:40am → 12:35pm<br>back 2:00pm</small></td></tr><tr><th scope="row">Main weekend<br>Fri 3 → Sun 5</th><td>S$422<small>checked 24/10</small></td><td>S$636<small>checked 24/10</small></td><td>S$547<small>checked 24/10</small></td></tr><tr><th scope="row">Fri 3 → Mon 6</th><td>S$393<small>checked 24/10</small></td><td>S$596<small>checked 24/10</small></td><td>S$547<small>checked 24/10</small></td></tr><tr><th scope="row">Wed 1 → Sun 5</th><td>S$341<small>checked 24/10</small></td><td>S$636<small>checked 24/10</small></td><td>S$531<small>checked 24/10</small></td></tr><tr><th scope="row">Wed 1 → Mon 6</th><td>S$312<small>checked 24/10</small></td><td>S$592<small>checked 24/10</small></td><td>S$531<small>checked 24/10</small></td></tr><tr><th scope="row">Fri 3 → Wed 8</th><td>S$356<small>checked 24/10</small></td><td class="na">–</td><td>S$478<small>checked 24/10</small></td></tr><tr><th scope="row">After work<br>Fri 3 → Sun 5</th><td>S$397<small>out 9:15pm</small></td><td class="na">–</td><td class="na">–</td></tr></tbody></table></div>
+  <p class="note">SIN = Singapore Changi · DPS = Bali (Denpasar). SQ and Garuda are checked every few days, Scoot daily.<br>🧳 Scoot is cabin bag only (about S$80 more for a 20kg bag both ways). SQ and Garuda include a checked bag.</p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const DATA = {"days": ["2026-10-23", "2026-10-24"], "airlines": [{"code": "TR", "name": "Scoot", "prices": [297.0, 317.0]}, {"code": "SQ", "name": "Singapore Airlines", "prices": [633.0, 362.0]}, {"code": "KL", "name": "KLM", "prices": [233.0, 233.0]}, {"code": "GA", "name": "Garuda Indonesia", "prices": [538.0, 409.0]}], "bandLow": [305.0, 305.0], "bandHigh": [455.0, 455.0], "alerts": [{"day": "2026-10-23", "airline": "KL", "price": 233.0}, {"day": "2026-10-23", "airline": "TR", "price": 297.0}, {"day": "2026-10-24", "airline": "SQ", "price": 362.0}, {"day": "2026-10-24", "airline": "GA", "price": 409.0}]};
+const DATA = {"days": ["2026-10-24"], "airlines": [{"code": "TR", "name": "Scoot", "prices": [422.0]}, {"code": "SQ", "name": "Singapore Airlines", "prices": [636.0]}, {"code": "GA", "name": "Garuda", "prices": [547.0]}], "bandLow": [null], "bandHigh": [null], "alerts": []};
 const dark = matchMedia('(prefers-color-scheme: dark)').matches && document.documentElement.dataset.theme !== 'light'
   || document.documentElement.dataset.theme === 'dark';
 const COLORS = dark ? ["#3987e5", "#d95926", "#199e70", "#c98500"] : ["#2a78d6", "#eb6834", "#1baf7a", "#eda100"];
@@ -93,7 +93,6 @@ if (!DATA.days.length || typeof Chart === 'undefined') {
       data: DATA.alerts.map(a => ({x: a.day, y: a.price, airline: a.airline}))});
     legend.insertAdjacentHTML('beforeend', '<li><i class="tri"></i>Alert sent</li>');
   }
-  legend.insertAdjacentHTML('beforeend', `<li><i class="band"></i>Google's typical range</li>`);
 
   new Chart(document.getElementById('chart'), {
     type: 'line',
