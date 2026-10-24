@@ -31,9 +31,11 @@ cheapest **afternoon/evening** option (lands in Bali 12:00–23:59 / leaves Bali
 | now → 28 Feb 2027 | 6 | 186 |
 | 1 Mar → 3 Sep 2027 | 6 + 1 (evening `core`) | 217 |
 
-GitHub sometimes starts scheduled runs late or drops them, so each daily slot has a **backup**
-2½ hours later (11:37 SGT, and 23:37 SGT from March). The backup exits straight away, with no
-API calls, if that slot already ran successfully that day.
+GitHub's own scheduler often starts runs hours late or drops them, so the on-time runs are started
+by a **Claude scheduled task** (09:07 SGT daily, plus 21:07 SGT from March) that triggers the workflow
+with mode `scheduled`. GitHub's cron is kept only as a **backup** (11:37 SGT, and 23:37 SGT from
+March). Both use `--skip-if-done`: if that slot already ran successfully that day, the run exits
+straight away with no API calls.
 
 A hard guard skips any run that would take the month past **235** calls and tells the admin chat
 (leaves ~15 for manual runs). A warning goes to the admin chat at 200. Every call is logged in

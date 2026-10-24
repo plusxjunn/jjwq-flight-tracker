@@ -1,11 +1,12 @@
 name: track
 
 on:
+  # The on-time runs (09:07 SGT, and 21:07 SGT from Mar 2027) are started by a Claude scheduled
+  # task using mode "scheduled". GitHub's own cron is unreliable (hours late or dropped), so it is
+  # only a backup here; --skip-if-done makes it a no-op when that slot already ran today.
   schedule:
-    - cron: "7 1 * * *"       # 09:07 SGT daily
-    - cron: "37 3 * * *"      # 11:37 SGT backup: runs only if the 09:07 run didn't happen
-    - cron: "7 13 * 3-9 *"    # 21:07 SGT, Mar–Sep only (main.py also skips before 1 Mar 2027)
-    - cron: "37 15 * 3-9 *"   # 23:37 SGT backup for the evening run
+    - cron: "37 3 * * *"      # 11:37 SGT backup for the morning run
+    - cron: "37 15 * 3-9 *"   # 23:37 SGT backup for the evening run (main.py skips before 1 Mar 2027)
   workflow_dispatch:
     inputs:
       mode:
@@ -14,6 +15,7 @@ on:
         default: run
         options:
           - run            # normal run (morning slot)
+          - scheduled      # used by the daily Claude scheduled task: auto slot, skip if already done
           - run-digest     # normal run + weekly digest now
           - dry-run        # sample data, no API calls, prints messages only
           - test-admin     # send a test message to the admin chat
@@ -47,6 +49,7 @@ jobs:
         run: |
           case "${{ github.event_name }}:${{ inputs.mode }}" in
             schedule:*)              python main.py --slot auto --skip-if-done ;;
+            *:scheduled)             python main.py --slot auto --skip-if-done ;;
             *:run-digest)            python main.py --slot morning --digest ;;
             *:dry-run)               python main.py --dry-run --slot morning --digest ;;
             *:test-admin)            python main.py --test-admin ;;
