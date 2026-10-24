@@ -6,3 +6,6 @@ id,ts,kind,search_id,airline,price,reasons
 5,2026-10-23T12:17:01+08:00,deal,out_wed,TR,126.0,google_low
 6,2026-10-23T12:17:01+08:00,deal,back_sun,KL,105.0,google_low
 7,2026-10-23T12:17:01+08:00,deal,back_mon,KL,105.0,google_low
+8,2026-10-24T11:52:31+08:00,deal,core,SQ,362.0,sharp_drop
+9,2026-10-24T11:52:31+08:00,deal,core,GA,409.0,sharp_drop
+10,2026-10-24T11:52:31+08:00,deal,flex,SQ,291.0,google_low; sharp_drop
