@@ -264,7 +264,8 @@ def digest_message(blocks: list[dict], cfg: dict, now: datetime) -> str:
             when = ""
             if t["checked"] is not None and t["checked"].date() != now.date():
                 when = f" <i>(checked {t['checked']:%a})</i>"
-            L.append(f"{trip_dates(t['trip'])}   <b>{money(t['price'])}</b>{when}")
+            price = f"<b>{money(t['price'])}</b>" if t["price"] is not None else "<i>no price yet</i>"
+            L.append(f"{trip_dates(t['trip'])}   {price}{when}")
         aw = b["after_work"]
         if aw is not None:
             L.append(f"After work: SIN → DPS {t12(aw['out_dep'])}, {trip_dates(cfg['trips'][0])}  "

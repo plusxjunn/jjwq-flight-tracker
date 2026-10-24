@@ -133,7 +133,8 @@ def price_pairs(cfg: dict, results: dict) -> tuple[list[dict], list[str]]:
                 continue                          # not due today, or failed
             hit = find_flight(rt, p["out_flight"])
             if hit is None:
-                warnings.append(f"{p['pair_id']}: {p['out_flight']} + {p['back_flight']} return not found")
+                warnings.append(f"{p['pair_id']}: Google shows no price for {p['out_flight']} + "
+                                f"{p['back_flight']} (often: not on sale yet)")
                 continue
             price, url = hit.price, rt.url
         out_dep, out_arr = times(cfg, p["out_flight"], f_out)
