@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import csv
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 SGT = timezone(timedelta(hours=8))
@@ -53,6 +53,22 @@ CREATE TABLE IF NOT EXISTS quotes (
     is_overall_min INTEGER NOT NULL DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS quotes_lookup ON quotes (search_id, airline, preferred, ts);
+-- One row per same-airline flight pair per check. This is what alerts, verdicts and the chart use.
+CREATE TABLE IF NOT EXISTS pair_quotes (
+    id INTEGER PRIMARY KEY,
+    ts TEXT NOT NULL,
+    day TEXT NOT NULL,
+    pair_id TEXT NOT NULL,    -- trip:airline:option, e.g. main:SQ:day
+    trip TEXT NOT NULL,
+    airline TEXT NOT NULL,
+    option TEXT NOT NULL,
+    price REAL NOT NULL,
+    out_flight TEXT, out_dep TEXT, out_arr TEXT,
+    back_flight TEXT, back_dep TEXT, back_arr TEXT,
+    source TEXT,              -- one_way (sum of two one-way fares) | return (return-ticket search)
+    url TEXT
+);
+CREATE INDEX IF NOT EXISTS pair_lookup ON pair_quotes (pair_id, ts);
 CREATE TABLE IF NOT EXISTS alerts (
     id INTEGER PRIMARY KEY,
     ts TEXT NOT NULL,
@@ -126,6 +142,41 @@ class Store:
         self.db.commit()
         return row
 
+    def record_search(self, run_id: int, ts: datetime, result) -> None:
+        self.db.execute(
+            "INSERT INTO searches (run_id, ts, day, search_id, lowest_price, price_level,"
+            " typical_low, typical_high, url) VALUES (?,?,?,?,?,?,?,?,?)",
+            (run_id, ts.isoformat(), ts.date().isoformat(), result.spec.id, result.lowest_price,
+             result.price_level, result.typical_low, result.typical_high, result.url))
+        self.db.commit()
+
+    def last_search_day(self, search_id: str):
+        row = self.db.execute("SELECT MAX(day) FROM searches WHERE search_id=?", (search_id,)).fetchone()
+        return date.fromisoformat(row[0]) if row and row[0] else None
+
+    def save_pair(self, ts: datetime, q: dict) -> None:
+        self.db.execute(
+            "INSERT INTO pair_quotes (ts, day, pair_id, trip, airline, option, price, out_flight, out_dep,"
+            " out_arr, back_flight, back_dep, back_arr, source, url) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            (ts.isoformat(), ts.date().isoformat(), q["pair_id"], q["trip"], q["airline"], q["option"],
+             q["price"], q["out_flight"], q["out_dep"], q["out_arr"], q["back_flight"], q["back_dep"],
+             q["back_arr"], q["source"], q.get("url")))
+        self.db.commit()
+
+    def pair_history(self, pair_id: str, before: datetime | None = None) -> list[sqlite3.Row]:
+        sql, args = "SELECT * FROM pair_quotes WHERE pair_id=?", [pair_id]
+        if before is not None:
+            sql += " AND ts < ?"
+            args.append(before.isoformat())
+        return self.db.execute(sql + " ORDER BY ts", args).fetchall()
+
+    def latest_pair(self, pair_id: str, at_or_before: datetime | None = None):
+        sql, args = "SELECT * FROM pair_quotes WHERE pair_id=?", [pair_id]
+        if at_or_before is not None:
+            sql += " AND ts <= ?"
+            args.append(at_or_before.isoformat())
+        return self.db.execute(sql + " ORDER BY ts DESC LIMIT 1", args).fetchone()
+
     def quote_history(self, search_id: str, airline: str | None, before: datetime | None = None,
                       preferred: int = 0) -> list[sqlite3.Row]:
         """All quotes for a search (+airline, or overall-cheapest if airline is None), oldest first."""
@@ -179,7 +230,10 @@ class Store:
         folder = Path(folder)
         folder.mkdir(parents=True, exist_ok=True)
         exports = {
-            "prices.csv": "SELECT q.ts, q.day, q.search_id, q.airline, q.price, q.flights, q.depart,"
+            "prices.csv": "SELECT ts, day, pair_id, trip, airline, option, price, out_flight, out_dep, out_arr,"
+                          " back_flight, back_dep, back_arr, source FROM pair_quotes ORDER BY ts, pair_id",
+            # Before 25 Oct 2026: cheapest flight per airline per search (round trips could mix airlines).
+            "prices_legacy.csv": "SELECT q.ts, q.day, q.search_id, q.airline, q.price, q.flights, q.depart,"
                           " q.arrive, q.preferred, q.is_overall_min, s.price_level, s.typical_low,"
                           " s.typical_high FROM quotes q JOIN searches s ON s.id = q.search_row ORDER BY q.ts, q.search_id, q.preferred, q.price",
             "runs.csv": "SELECT * FROM runs ORDER BY id",

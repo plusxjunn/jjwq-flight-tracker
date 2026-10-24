@@ -12,47 +12,64 @@ COLORS_DARK = ["#3987e5", "#d95926", "#199e70", "#c98500"]
 
 
 def _series(store, cfg):
-    """Cheapest core price per day per airline + Google's typical band + alert markers."""
+    """Main-weekend daytime return price per airline per day, plus alert markers."""
+    main = cfg["trips"][0]["id"]
     days: list[str] = []
     per_airline: dict[str, dict[str, float]] = {c: {} for c in cfg["airlines"]}
-    for r in store.db.execute("SELECT day, airline, MIN(price) p FROM quotes WHERE search_id='core'"
-                              " AND preferred=0 GROUP BY day, airline ORDER BY day"):
+    for r in store.db.execute("SELECT day, airline, MIN(price) p FROM pair_quotes WHERE trip=? AND option='day'"
+                              " GROUP BY day, airline ORDER BY day", (main,)):
         if r["day"] not in days:
             days.append(r["day"])
         if r["airline"] in per_airline:
             per_airline[r["airline"]][r["day"]] = r["p"]
-    band = {r["day"]: (r["lo"], r["hi"]) for r in store.db.execute(
-        "SELECT day, MIN(typical_low) lo, MAX(typical_high) hi FROM searches WHERE search_id='core' GROUP BY day")}
     alerts = [{"day": r["ts"][:10], "airline": r["airline"], "price": r["price"]}
-              for r in store.db.execute("SELECT ts, airline, price FROM alerts WHERE kind='deal' AND search_id='core'")]
+              for r in store.db.execute("SELECT ts, airline, price FROM alerts WHERE kind='deal' AND search_id=?"
+                                        " || ':' || airline || ':day'", (main,))]
     return {
         "days": days,
         "airlines": [{"code": c, "name": n, "prices": [per_airline[c].get(d) for d in days]}
                      for c, n in cfg["airlines"].items()],
-        "bandLow": [band.get(d, (None, None))[0] for d in days],
-        "bandHigh": [band.get(d, (None, None))[1] for d in days],
+        "bandLow": [None] * len(days),
+        "bandHigh": [None] * len(days),
         "alerts": alerts,
     }
 
 
+def _t12(hhmm: str) -> str:
+    hr, mi = int(hhmm[:2]), hhmm[3:5]
+    return f"{(hr % 12) or 12}:{mi}{'am' if hr < 12 else 'pm'}"
+
+
+def _dates(t: dict) -> str:
+    from datetime import date
+    o, b = date.fromisoformat(t["out"]), date.fromisoformat(t["back"])
+    return f"{o:%a} {o.day} → {b:%a} {b.day}"
+
+
 def _table(store, cfg) -> str:
-    rows = []
-    for s in cfg["searches"]:
-        anyq = {r["airline"]: r for r in store.latest_quotes(s["id"])}
-        pref = {r["airline"]: r for r in store.latest_quotes(s["id"], preferred=1)}
-        cells = []
-        for code in cfg["airlines"]:
-            a, p = anyq.get(code), pref.get(code)
-            if not a:
-                cells.append('<td class="na">–</td>')
-                continue
-            txt = f'S${a["price"]:,.0f}<small>{html.escape(a["flights"])} {a["depart"][-5:]}</small>'
-            if p and p["flights"] != a["flights"]:
-                txt += f'<small class="pref">pm/eve: S${p["price"]:,.0f} {p["depart"][-5:]}</small>'
-            cells.append(f"<td>{txt}</td>")
-        rows.append(f'<tr><th scope="row">{html.escape(s["label"])}</th>{"".join(cells)}</tr>')
+    main = cfg["trips"][0]["id"]
     head = "".join(f'<th scope="col">{html.escape(cfg["short_names"].get(c, c))}</th>' for c in cfg["airlines"])
-    return f'<table><thead><tr><th scope="col">Trip</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
+    times = []
+    for c in cfg["airlines"]:
+        q = store.latest_pair(f"{main}:{c}:day")
+        times.append(f'<td><small>{_t12(q["out_dep"])} → {_t12(q["out_arr"])}<br>back {_t12(q["back_dep"])}</small></td>'
+                     if q else '<td class="na">–</td>')
+    rows = [f'<tr><th scope="row">Flights</th>{"".join(times)}</tr>']
+    for t in cfg["trips"]:
+        cells = []
+        for c in cfg["airlines"]:
+            q = store.latest_pair(f"{t['id']}:{c}:day")
+            cells.append(f'<td>S${q["price"]:,.0f}<small>checked {q["day"][8:]}/{q["day"][5:7]}</small></td>'
+                         if q else '<td class="na">–</td>')
+        label = (t.get("label", "") + "<br>" if t.get("label") else "") + _dates(t)
+        rows.append(f'<tr><th scope="row">{label}</th>{"".join(cells)}</tr>')
+    cells = []
+    for c in cfg["airlines"]:
+        q = store.latest_pair(f"{main}:{c}:after_work")
+        cells.append(f'<td>S${q["price"]:,.0f}<small>out {_t12(q["out_dep"])}</small></td>' if q
+                     else '<td class="na">–</td>')
+    rows.append(f'<tr><th scope="row">After work<br>{_dates(cfg["trips"][0])}</th>{"".join(cells)}</tr>')
+    return f'<table><thead><tr><th scope="col">Return, per person</th>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table>'
 
 
 def chart_png(store, cfg, path: str | Path) -> bool:
@@ -105,7 +122,7 @@ def chart_png(store, cfg, path: str | Path) -> bool:
         ax.annotate(f"{name} S${price:.0f}", (d, price), xytext=(mdates.date2num(d) + span * 0.03, y),
                     textcoords="data", va="center", fontsize=9.5, color=ink, fontweight="bold")
 
-    ax.set_title("SIN⇄Bali return Fri 3 → Sun 5 Sep · cheapest per day", loc="left",
+    ax.set_title("Main weekend, Fri 3 → Sun 5 Sep · return per person", loc="left",
                  fontsize=12, fontweight="bold", color=ink)
     ax.yaxis.set_major_formatter(lambda v, _: f"S${v:.0f}")
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%-d %b"))
@@ -130,9 +147,8 @@ def build(store, cfg, path: str | Path, now: datetime) -> None:
         .replace("__UPDATED__", f"{now:%d %b %Y, %H:%M} SGT") \
         .replace("__COLORS_LIGHT__", json.dumps(COLORS_LIGHT)) \
         .replace("__COLORS_DARK__", json.dumps(COLORS_DARK)) \
-        .replace("__BAG__", f'{" & ".join(cfg["short_names"][c] for c in cfg.get("budget_airlines", []))}: '
-                            f'cheapest fare has no checked bag or seat choice (~S${cfg.get("bag_fee_sgd", 40):.0f} '
-                            "each way for a 20kg bag).")
+        .replace("__BAG__", f'{" & ".join(cfg["short_names"][c] for c in cfg.get("budget_airlines", []))} is cabin bag only '
+                            f'(about S${2 * cfg.get("bag_fee_sgd", 40):.0f} more for a 20kg bag both ways). SQ and Garuda include a checked bag.')
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(page)
 
@@ -190,15 +206,15 @@ td.na { color: var(--muted); }
 <body>
 <main>
   <h1>Singapore ⇄ Bali fares</h1>
-  <p class="sub">Wedding weekend · Fri 3 → Sun 5 Sep 2027 · per person, nonstop, cheapest fare type · updated __UPDATED__</p>
+  <p class="sub">Glamp Nusa, Sat 4 Sep 2027 · direct flights · per person, return · updated __UPDATED__</p>
 
-  <h2>Round trip Fri 3 → Sun 5 Sep: cheapest per day</h2>
+  <h2>Main weekend, Fri 3 → Sun 5 Sep: daytime flights, same airline both ways</h2>
   <div class="chart-wrap"><canvas id="chart" aria-label="Cheapest round-trip price per airline per day"></canvas></div>
   <ul class="legend" id="legend"></ul>
 
   <h2>Latest prices</h2>
   <div class="scroll">__TABLE__</div>
-  <p class="note">"pm/eve" = cheapest flight landing in Bali (or leaving Bali) after 12:00, when different from the overall cheapest.<br>🧳 __BAG__</p>
+  <p class="note">SIN = Singapore Changi · DPS = Bali (Denpasar). SQ and Garuda are checked every few days, Scoot daily.<br>🧳 __BAG__</p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
@@ -232,7 +248,6 @@ if (!DATA.days.length || typeof Chart === 'undefined') {
       data: DATA.alerts.map(a => ({x: a.day, y: a.price, airline: a.airline}))});
     legend.insertAdjacentHTML('beforeend', '<li><i class="tri"></i>Alert sent</li>');
   }
-  legend.insertAdjacentHTML('beforeend', `<li><i class="band"></i>Google's typical range</li>`);
 
   new Chart(document.getElementById('chart'), {
     type: 'line',

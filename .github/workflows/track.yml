@@ -1,12 +1,11 @@
 name: track
 
 on:
-  # The on-time runs (09:07 SGT, and 21:07 SGT from Mar 2027) are started by a Claude scheduled
-  # task using mode "scheduled". GitHub's own cron is unreliable (hours late or dropped), so it is
-  # only a backup here; --skip-if-done makes it a no-op when that slot already ran today.
+  # The on-time run (09:07 SGT) is started by a Claude scheduled task using mode "scheduled".
+  # GitHub's own cron is unreliable (hours late or dropped), so it is only a backup here;
+  # --skip-if-done makes it a no-op when today's run already happened.
   schedule:
-    - cron: "37 3 * * *"      # 11:37 SGT backup for the morning run
-    - cron: "37 15 * 3-9 *"   # 23:37 SGT backup for the evening run (main.py skips before 1 Mar 2027)
+    - cron: "37 3 * * *"      # 11:37 SGT backup
   workflow_dispatch:
     inputs:
       mode:
@@ -14,8 +13,10 @@ on:
         type: choice
         default: run
         options:
-          - run            # normal run (morning slot)
-          - scheduled      # used by the daily Claude scheduled task: auto slot, skip if already done
+          - run            # normal run
+          - scheduled      # used by the daily Claude scheduled task: skip if today's run already happened
+          - preview        # real searches (all of them); every guest message goes to the admin chat
+          - announce       # post announcement.html to the guest channel
           - run-digest     # normal run + weekly digest now
           - dry-run        # sample data, no API calls, prints messages only
           - test-admin     # send a test message to the admin chat
@@ -48,13 +49,15 @@ jobs:
       - name: Run
         run: |
           case "${{ github.event_name }}:${{ inputs.mode }}" in
-            schedule:*)              python main.py --slot auto --skip-if-done ;;
-            *:scheduled)             python main.py --slot auto --skip-if-done ;;
-            *:run-digest)            python main.py --slot morning --digest ;;
-            *:dry-run)               python main.py --dry-run --slot morning --digest ;;
+            schedule:*)              python main.py --skip-if-done ;;
+            *:scheduled)             python main.py --skip-if-done ;;
+            *:run-digest)            python main.py --digest ;;
+            *:preview)               python main.py --preview ;;
+            *:announce)              python main.py --announce announcement.html ;;
+            *:dry-run)               python main.py --dry-run --digest ;;
             *:test-admin)            python main.py --test-admin ;;
             *:welcome)               python main.py --welcome ;;
-            *)                       python main.py --slot morning ;;
+            *)                       python main.py ;;
           esac
 
       - name: Commit data and report
@@ -62,8 +65,8 @@ jobs:
         run: |
           git config user.name "flight-tracker-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          mkdir -p data docs
-          git add data docs
+          mkdir -p data docs samples
+          git add data docs samples
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
           git commit -m "data: $(date -u +%Y-%m-%dT%H:%MZ) run"
           for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep 5; done

@@ -109,9 +109,11 @@ def evaluate_deal(price: float, now: datetime, history: list[Point], insights: I
 
     # 3. Sharp drop vs previous run
     if history:
-        prev = history[-1].price
+        prev, prev_day = history[-1].price, history[-1].ts.date()
         if price <= prev * (1 - c["sharp_drop"]):
-            reasons.append(Reason("sharp_drop", f"down {pct(price, prev)}% since last check (was S${prev:.0f})"))
+            gap = (today - prev_day).days
+            when = "yesterday" if gap == 1 else (f"{prev_day:%a}" if gap < 7 else f"{prev_day.day} {prev_day:%b}")
+            reasons.append(Reason("sharp_drop", f"down {pct(price, prev)}% since {when} (was S${prev:.0f})"))
 
     # 4. Target hit
     target = c["target_price"]
@@ -133,22 +135,21 @@ def cooldown_allows(now: datetime, price: float, last_alert_ts: datetime | None,
 
 
 def climbing(points: list[Point], today: date, cfg: dict | None = None) -> tuple[bool, int]:
-    """True when the daily cheapest price has been ≥15% above its 30-day median for
-    the last 3 consecutive days (ending today). `points` includes today's quote.
-    Returns (is_climbing, today's % above median)."""
+    """True when the price has been ≥15% above its 30-day median for the last 3 checks,
+    the latest of which is today. Checks need not be on consecutive days (SQ/Garuda are checked
+    every few days). `points` includes today's quote. Returns (is_climbing, today's % above median)."""
     c = _cfg(cfg)
     daily = daily_min(points)
+    checks = sorted(daily)[-c["climbing_days"]:]
+    if len(checks) < c["climbing_days"] or checks[-1] != today:
+        return False, 0
     above_pct = 0
-    for i in range(c["climbing_days"]):
-        d = today - timedelta(days=i)
-        if d not in daily:
-            return False, 0
+    for d in checks:
         prior = [p for p in points if p.ts.date() < d]
         med = median_30(prior, d, c)
         if med is None or daily[d] < med * (1 + c["climbing_above_median"]):
             return False, 0
-        if i == 0:
-            above_pct = round((daily[d] - med) / med * 100)
+        above_pct = round((daily[d] - med) / med * 100)
     return True, above_pct
 
 

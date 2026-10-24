@@ -113,9 +113,21 @@ class Climbing(unittest.TestCase):
             Point(NOW - timedelta(days=1), 360), Point(NOW, 370)]
         self.assertFalse(rules.climbing(hist, NOW.date())[0])
 
-    def test_missing_day_breaks_streak(self):
+    def test_counts_checks_not_calendar_days(self):
+        # checked every 2 days (like SQ/Garuda): three high checks in a row still count
+        hist = series([300] * 30, end=NOW - timedelta(days=4)) + [
+            Point(NOW - timedelta(days=4), 360), Point(NOW - timedelta(days=2), 360), Point(NOW, 370)]
+        self.assertTrue(rules.climbing(hist, NOW.date())[0])
+
+    def test_one_normal_check_breaks_streak(self):
+        hist = series([300] * 30, end=NOW - timedelta(days=2)) + [
+            Point(NOW - timedelta(days=2), 360), Point(NOW - timedelta(days=1), 300), Point(NOW, 370)]
+        self.assertFalse(rules.climbing(hist, NOW.date())[0])
+
+    def test_needs_a_check_today(self):
         hist = series([300] * 30, end=NOW - timedelta(days=3)) + [
-            Point(NOW - timedelta(days=3), 360), Point(NOW - timedelta(days=1), 360), Point(NOW, 370)]
+            Point(NOW - timedelta(days=3), 360), Point(NOW - timedelta(days=2), 360),
+            Point(NOW - timedelta(days=1), 370)]
         self.assertFalse(rules.climbing(hist, NOW.date())[0])
 
     def test_needs_history(self):

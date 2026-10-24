@@ -1,13 +1,15 @@
-"""Telegram delivery (guest channel + admin chat) and plain-English message templates."""
+"""Telegram delivery (guest channel + admin chat) and the guest message templates.
+
+Guest messages are Telegram HTML: <b>, <i> and <a> only. Anything dynamic goes through h().
+"""
 from __future__ import annotations
 
-from datetime import datetime
 import re
+from datetime import date, datetime
 from html import escape as h, unescape
+from urllib.parse import quote
 
 import requests
-
-from rules import VERDICT_TEXT
 
 TELEGRAM_API = "https://api.telegram.org/bot{token}/{method}"
 
@@ -27,9 +29,11 @@ class TelegramNotifier(Notifier):
         self.channel_id = channel_id.strip()
         self.admin_chat_id = admin_chat_id.strip()
 
-    def _call(self, method: str, **payload) -> dict:
+    def _call(self, method: str, files=None, **payload) -> dict:
+        url = TELEGRAM_API.format(token=self.token, method=method)
         try:
-            r = requests.post(TELEGRAM_API.format(token=self.token, method=method), json=payload, timeout=30)
+            r = (requests.post(url, data=payload, files=files, timeout=60) if files
+                 else requests.post(url, json=payload, timeout=30))
             data = r.json()
         except (requests.RequestException, ValueError) as e:
             raise RuntimeError(f"Telegram {method} failed: {str(e).replace(self.token, '***')}") from None
@@ -37,41 +41,57 @@ class TelegramNotifier(Notifier):
             raise RuntimeError(f"Telegram {method} failed: {data.get('description')}")
         return data["result"]
 
-    def _send(self, chat_id: str, text: str) -> dict:
-        # Messages are Telegram HTML (see `link`); dynamic text is escaped with h().
-        return self._call("sendMessage", chat_id=chat_id, text=text[:4096], parse_mode="HTML",
+    def send(self, chat_id: str, html: str) -> dict:
+        return self._call("sendMessage", chat_id=chat_id, text=html[:4096], parse_mode="HTML",
                           link_preview_options={"is_disabled": True})
 
+    def send_photo(self, chat_id: str, path, caption: str) -> None:
+        with open(path, "rb") as f:
+            self._call("sendPhoto", files={"photo": f}, chat_id=chat_id, caption=caption[:1024], parse_mode="HTML")
+
     def guest(self, text):
-        self._send(self.channel_id, text)
+        self.send(self.channel_id, text)
 
     def admin(self, text):
-        self._send(self.admin_chat_id, "🔧 Flight tracker\n" + h(text))
+        self.send(self.admin_chat_id, "🔧 Flight tracker\n" + h(text))
 
     def guest_photo(self, path, caption):
-        try:
-            with open(path, "rb") as f:
-                r = requests.post(TELEGRAM_API.format(token=self.token, method="sendPhoto"),
-                                  data={"chat_id": self.channel_id, "caption": caption[:1024], "parse_mode": "HTML"},
-                                  files={"photo": f}, timeout=60)
-            data = r.json()
-        except (requests.RequestException, ValueError) as e:
-            raise RuntimeError(f"Telegram sendPhoto failed: {str(e).replace(self.token, '***')}") from None
-        if not data.get("ok"):
-            raise RuntimeError(f"Telegram sendPhoto failed: {data.get('description')}")
+        self.send_photo(self.channel_id, path, caption)
 
     def guest_pinned(self, text):
-        msg = self._send(self.channel_id, text)
+        msg = self.send(self.channel_id, text)
+        self._call("unpinAllChatMessages", chat_id=self.channel_id)   # replace, don't stack, the pinned post
         self._call("pinChatMessage", chat_id=self.channel_id, message_id=msg["message_id"],
                    disable_notification=True)
+
+
+class PreviewNotifier(Notifier):
+    """--preview: everything meant for guests goes to the admin chat instead."""
+
+    HEADER = "👀 <b>PREVIEW</b> <i>(not sent to guests)</i>\n\n"
+
+    def __init__(self, tg: TelegramNotifier):
+        self.tg = tg
+
+    def guest(self, text):
+        self.tg.send(self.tg.admin_chat_id, self.HEADER + text)
+
+    def admin(self, text):
+        self.tg.admin(text)
+
+    def guest_photo(self, path, caption):
+        self.tg.send_photo(self.tg.admin_chat_id, path, self.HEADER + caption)
+
+    def guest_pinned(self, text):
+        self.guest(text)
 
 
 class PrintNotifier(Notifier):
     """--dry-run: print instead of sending (HTML shown as plain text)."""
 
     def _print(self, who: str, text: str):
-        text = re.sub(r'<a href="([^"]*)">([^<]*)</a>', r"\2 ↗ \1", text)
-        text = unescape(re.sub(r"</?b>", "", text))
+        text = re.sub(r'<a href="([^"]*)">([^<]*)</a>', r"\2 ↗", text)
+        text = unescape(re.sub(r"</?[bi]>", "", text))
         print(f"\n----- {who} -----\n{text}\n")
 
     def guest(self, text):
@@ -90,146 +110,215 @@ class PrintNotifier(Notifier):
 # ---- formatting helpers ---------------------------------------------------
 
 def link(url: str | None, label: str = "Google Flights") -> str:
-    return f'<a href="{h(url)}">{h(label)}</a>' if url else ""
+    return f'<a href="{h(url)}">{h(label)}</a>' if url else h(label)
 
 
 def money(x: float | None) -> str:
-    return "—" if x is None else f"S${x:,.0f}"
+    return "S$ –" if x is None else f"S${x:,.0f}"
 
 
-def day_mon(d: datetime | str) -> str:
-    if isinstance(d, str):
-        d = datetime.fromisoformat(d)
-    return f"{d.day} {d:%b}"
+def t12(hhmm: str) -> str:
+    """'13:05' -> '1:05pm', '00:05' -> '12:05am', '12:00' -> '12:00pm'."""
+    hr, mi = int(hhmm[:2]), hhmm[3:5]
+    return f"{(hr % 12) or 12}:{mi}{'am' if hr < 12 else 'pm'}"
 
 
-def hhmm(ts: str) -> str:
-    return ts[-5:] if ts else ""
+def dlabel(iso: str) -> str:
+    d = date.fromisoformat(iso)
+    return f"{d:%a} {d.day}"
 
 
-def bag_note(cfg: dict, codes: set[str] | None = None) -> str | None:
-    budget = [c for c in cfg.get("budget_airlines", []) if codes is None or c in codes]
-    if not budget:
-        return None
-    names = h(" & ".join(cfg["short_names"].get(c, c) for c in budget))
-    return (f"🧳 {names}'s cheapest fare has no checked bag or seat choice. "
-            f"Budget ~S${cfg.get('bag_fee_sgd', 40):.0f} each way for a 20kg bag (check at booking).")
+def trip_dates(t: dict, month: bool = False) -> str:
+    s = f"{dlabel(t['out'])} → {dlabel(t['back'])}"
+    return s + " Sep" if month else s
 
 
-def route_title(spec) -> str:
-    return "SIN⇄Bali" if spec.type == "round_trip" else ("SIN→Bali" if spec.direction == "out" else "Bali→SIN")
+def trip_title(t: dict) -> str:
+    """'Main weekend · Fri 3 → Sun 5 Sep' or 'Fri 3 → Mon 6 Sep'."""
+    return (f"{h(t['label'])} · " if t.get("label") else "") + trip_dates(t, month=True)
+
+
+def cap(s: str) -> str:
+    return s[:1].upper() + s[1:]
+
+
+def flights_url(cfg: dict, trip: dict, airline: str) -> str:
+    """Google Flights search for the exact dates on one airline (for pairs priced from one-way fares)."""
+    q = (f"Flights from {cfg['origin']} to {cfg['destination']} on {trip['out']} through {trip['back']} "
+         f"nonstop on {cfg['airlines'][airline]}")
+    return f"https://www.google.com/travel/flights?q={quote(q)}&curr={cfg['currency']}&hl={cfg['hl']}&gl={cfg['gl']}"
+
+
+def bag_line(cfg: dict, airline: str, italic: bool = False) -> str:
+    if airline in cfg.get("budget_airlines", []):
+        text = f"Cabin bag only. About S${2 * cfg['bag_fee_sgd']:.0f} more for a 20kg bag both ways."
+        if italic:
+            text = f"Cabin bag only; ~S${2 * cfg['bag_fee_sgd']:.0f} more for a 20kg bag"
+    else:
+        text = "Checked bag included"
+    return f"🧳 <i>{text}</i>" if italic else f"🧳 {text}"
+
+
+def flight_lines(q, with_dates: dict | None = None) -> list[str]:
+    """SIN → DPS / DPS → SIN lines for a pair (q has out_dep, out_arr, back_dep, back_arr)."""
+    if with_dates:
+        return [f"SIN → DPS  <b>{dlabel(with_dates['out'])}</b> · {t12(q['out_dep'])} → {t12(q['out_arr'])}",
+                f"DPS → SIN  <b>{dlabel(with_dates['back'])}</b> · {t12(q['back_dep'])} → {t12(q['back_arr'])}"]
+    return [f"SIN → DPS  {t12(q['out_dep'])} → {t12(q['out_arr'])}",
+            f"DPS → SIN  {t12(q['back_dep'])} → {t12(q['back_arr'])}"]
+
+
+def flight_note(cfg: dict, q, option: str) -> str:
+    bits = [f"{q['out_flight']} / {q['back_flight']}"]
+    if option == "after_work":
+        bits.append("after-work flight")
+    if q["airline"] not in cfg.get("budget_airlines", []):
+        bits.append("checked bag included")
+    return "<i>" + h(" · ".join(bits)) + "</i>"
 
 
 # ---- guest messages -------------------------------------------------------
 
-def deal_block(spec, airline_short: str, price: float, lowest: tuple[float, str], reasons, url) -> str:
-    low_price, low_day = lowest
-    lines = [
-        f"✈️ Good time to book: {h(airline_short)} {route_title(spec)}",
-        f"{h(spec.label)}: {money(price)} per person",
-        f"Lowest we've seen: {money(low_price)} (on {day_mon(low_day)})",
-        "Why: " + h("; ".join(r.text for r in reasons)),
-    ]
-    if url:
-        lines.append(f"Book: {link(url)}")
-    return "\n".join(lines)
-
-
-def deal_line(spec, airline_short: str, price: float, reasons, url) -> str:
-    return (f"• {h(airline_short)} · {h(spec.label)}: <b>{money(price)}</b>\n"
-            f"   {h(reasons[0].text)} · {link(url, 'Book')}")
-
-
-def deals_message(alerts: list[dict], cfg: dict) -> str:
-    """alerts: dicts with spec, airline, short, price, lowest, reasons, url (in config order)."""
-    if len(alerts) <= 2:
-        body = "\n\n".join(deal_block(a["spec"], a["short"], a["price"], a["lowest"], a["reasons"], a["url"])
-                           for a in alerts)
+def deal_block(cfg: dict, b: dict) -> str:
+    """One airline + flight option. b: airline, option, flights (a pair quote), items [{trip, price, reasons, url}]."""
+    q, airline = b["flights"], b["airline"]
+    L = [f"<b>✈️ Good time to book: {h(cfg['airlines'][airline])}</b>"]
+    if len(b["items"]) == 1:
+        it = b["items"][0]
+        L += [trip_title(it["trip"]), "",
+              f"<b>{money(it['price'])}</b> per person, return",
+              f"📉 {h(cap(it['reasons'][0].text))}", ""]
+        L += flight_lines(q, it["trip"])
+        L.append(flight_note(cfg, q, b["option"]))
     else:
-        body = (f"✈️ Good time to book: {len(alerts)} low fares today\n"
-                "Per person, nonstop, cheapest fare type.\n\n"
-                + "\n".join(deal_line(a["spec"], a["short"], a["price"], a["reasons"], a["url"]) for a in alerts))
-    parts = [body]
-    note = bag_note(cfg, {a["airline"] for a in alerts})
-    if note:
-        parts.append(note)
-    parts.append("👉 Good time to book.")
-    return "\n\n".join(parts)
+        L += flight_lines(q)
+        L += [flight_note(cfg, q, b["option"]), ""]
+        for it in b["items"]:
+            L.append(f"<b>{trip_dates(it['trip'])}</b>  <b>{money(it['price'])}</b> · {link(it['url'], 'Book')}")
+            L.append(f"📉 {h(cap(it['reasons'][0].text))}")
+    if airline in cfg.get("budget_airlines", []):
+        L += ["", bag_line(cfg, airline)]
+    if airline == "GA":
+        L += ["", f"⚠️ {h(cfg['garuda_warning'])}"]
+    if len(b["items"]) == 1:
+        L += ["", f"👉 <b>Book now:</b> {link(b['items'][0]['url'])}"]
+    else:
+        L += ["", "👉 <b>Good time to book.</b> Tap <b>Book</b> next to your dates."]
+    return "\n".join(L)
 
 
-def climbing_message(spec, price: float, above_pct: int, days: int, url: str | None) -> str:
-    lines = [
-        f"📈 Prices climbing: {route_title(spec)} {h(spec.label)}",
-        f"Cheapest now: {money(price)} per person, {above_pct}% above usual for {days} days in a row.",
-    ]
-    if url:
-        lines.append(f"Book: {link(url)}")
-    lines.append("👉 If you haven't booked yet, book soon.")
-    return "\n".join(lines)
+def deals_message(blocks: list[dict], cfg: dict) -> str:
+    return "\n\n".join(deal_block(cfg, b) for b in blocks)
 
 
-def welcome_message(cfg: dict) -> str:
-    names = h(", ".join(cfg["airlines"].values()))
-    budget = h(" & ".join(cfg["short_names"][c] for c in cfg.get("budget_airlines", [])))
-    return (
-        "💍 Welcome! This channel tracks flight prices Singapore ⇄ Bali for our wedding on Sat 4 Sep 2027.\n"
-        "📅 Main trip Fri 3 → Sun 5 Sep (also Thu 2 → Mon 6, and one-way Wed 1 / Fri 3 out, Sun 5 / Mon 6 back). "
-        "Prices are per person, economy, nonstop, cheapest fare type.\n"
-        f"✈️ Airlines: {names}.\n"
-        "🚦 BOOK NOW = genuinely low · GOOD PRICE = fair, fine to book · WAIT = higher than usual · "
-        "RISING = going up, book soon.\n"
-        f"🧳 {budget}'s cheapest fare excludes checked bags and seat choice (~S${cfg.get('bag_fee_sgd', 40):.0f} "
-        "each way for a bag). We post only when it's worth your attention, plus a summary every Sunday.\n"
-        f"📊 {link(cfg.get('report_url'), 'Price chart')}"
-    )
+def rising_message(cfg: dict, q: dict, trip: dict, above_pct: int) -> str:
+    L = [f"<b>📈 Prices rising: {h(cfg['airlines'][q['airline']])}</b>", trip_title(trip), "",
+         f"<b>{money(q['price'])}</b> per person, return",
+         f"{above_pct}% above usual for the last {cfg['rules']['climbing_days']} checks", ""]
+    L += flight_lines(q, trip)
+    L.append(flight_note(cfg, q, q["option"]))
+    L += ["", f"👉 <b>Book soon if your dates are fixed:</b> {link(q['url'])}"]
+    return "\n".join(L)
+
+
+VERDICT_LABEL = {
+    "BOOK NOW": "🔥 <b>Book now</b>",
+    "GOOD PRICE": "✅ <b>Good price</b>",
+    "WAIT": "⏳ <b>Wait</b>",
+    "RISING": "📈 <b>Rising</b>",
+    "TRACKING": "👀 <b>Still tracking</b>",
+}
+
+
+def closing_line(blocks: list[dict], cfg: dict) -> str:
+    name = lambda b: cfg["airlines"][b["airline"]]
+    good = [name(b) for b in blocks if b["verdict"] in ("BOOK NOW", "GOOD PRICE")]
+    rising = [name(b) for b in blocks if b["verdict"] == "RISING"]
+    wait = [name(b) for b in blocks if b["verdict"] == "WAIT"]
+    def join(xs, word="or"):
+        return f" {word} ".join(xs) if len(xs) <= 2 else ", ".join(xs[:-1]) + f" {word} " + xs[-1]
+    if rising:
+        head = f"👉 <b>Book soon if your dates are fixed:</b> {h(join(rising))} prices are rising."
+    elif good:
+        head = f"👉 <b>Good time to book {h(join(good))}.</b>"
+    elif wait:
+        return "👉 <b>No action needed this week.</b> Prices are above usual; we'll post when they drop."
+    else:
+        return "👉 <b>No action needed yet.</b> We're still learning what's usual; we'll post when prices drop."
+    if wait:
+        one = len(wait) == 1
+        head += (f" {h(join(wait, 'and'))} {'is' if one else 'are'} above usual; "
+                 f"we'll post when {'it drops' if one else 'they drop'}.")
+    return head
+
+
+def digest_message(blocks: list[dict], cfg: dict, now: datetime) -> str:
+    """blocks come from main.build_digest()."""
+    L = ["<b>✈️ Weekly fares for our wedding</b>", "<i>Direct flights · per person · return</i>"]
+    for b in blocks:
+        a = b["airline"]
+        L += ["", f"<b>{h(cfg['airlines'][a])}</b> · {VERDICT_LABEL[b['verdict']]}", f"<i>{h(b['why'])}</i>"]
+        if b["flights"] is not None:
+            L += flight_lines(b["flights"])
+        for t in b["trips"]:
+            when = ""
+            if t["checked"] is not None and t["checked"].date() != now.date():
+                when = f" <i>(checked {t['checked']:%a})</i>"
+            L.append(f"{trip_dates(t['trip'])}   <b>{money(t['price'])}</b>{when}")
+        aw = b["after_work"]
+        if aw is not None:
+            L.append(f"After work: SIN → DPS {t12(aw['out_dep'])}, {trip_dates(cfg['trips'][0])}  "
+                     f"<b>{money(aw['price'])}</b>")
+        L.append(bag_line(cfg, a, italic=True))
+        if a == "GA":
+            L.append(f"⚠️ <i>{h(cfg['garuda_warning'])}</i>")
+    L += ["", closing_line(blocks, cfg)]
+    if cfg.get("report_url"):
+        L.append(f"📊 {link(cfg['report_url'], 'Price chart')}")
+    return "\n".join(L)
 
 
 def chart_caption(cfg: dict) -> str:
-    text = "📊 This week's prices: Fri 3 → Sun 5 Sep return, cheapest per airline. ▲ = alert sent."
+    t = cfg["trips"][0]
+    text = (f"📊 {h(t.get('label', ''))} ({trip_dates(t)}): return price per airline, daytime flights, "
+            "same airline both ways. ▲ = alert sent.")
     if cfg.get("report_url"):
         text += f" {link(cfg['report_url'], 'Full report')}"
     return text
 
 
-def digest_message(d: dict, cfg: dict) -> str:
-    """d is built by main.build_digest()."""
-    L = ["✈️ <b>Weekly fare check: SIN⇄Bali wedding trip</b>",
-         "Per person, nonstop, cheapest fare type."]
-    for trip in d["round_trips"]:
-        L.append("")
-        L.append(f"<b>{h(trip['label'])}</b> (return ticket)")
-        if trip["prices"]:
-            L.append(" · ".join(f"{h(a)} {money(p)}" for a, p in trip["prices"]))
-        else:
-            L.append("No nonstop fares found this week.")
-    if d.get("mix"):
-        L.append("")
-        L.append("<b>Mix &amp; match</b> (two one-way tickets)")
-        for m in d["mix"]:
-            L.append(f"{h(m['label'])}: {h(m['out_airline'])} + {h(m['back_airline'])} = {money(m['total'])}")
-    if d.get("after_work"):
-        L.append("")
-        L.append("<b>Afternoon/evening flights</b>")
-        for a in d["after_work"]:
-            L.append(f"{h(a['label'])}: {h(a['airline'])} {h(a['flight'])} {a['depart']}→{a['arrive']} {money(a['price'])}")
-    L.append("")
-    line = f"Cheapest Fri→Sun: {money(d['core_price'])}"
-    if d.get("core_airline"):
-        line += f" ({h(d['core_airline'])})"
-    if d.get("last_week") is not None:
-        diff = d["core_price"] - d["last_week"]
-        arrow = "▲" if diff > 0 else ("▼" if diff < 0 else "=")
-        line += f", last week {money(d['last_week'])} ({arrow}{abs(diff):.0f})"
-    L.append(line)
-    if d.get("lowest_seen"):
-        L.append(f"Lowest seen so far: {money(d['lowest_seen'][0])} on {day_mon(d['lowest_seen'][1])}")
-    L.append("")
-    L.append(f"Verdict: <b>{d['verdict']}</b>. {VERDICT_TEXT[d['verdict']]}")
-    note = bag_note(cfg)
-    if note:
-        L.append(note)
-    if cfg.get("report_url"):
-        L.append(f"📊 {link(cfg['report_url'], 'Price chart')}")
-    L.append("👉 " + {"BOOK NOW": "Good time to book.", "GOOD PRICE": "Good time to book.",
-                      "RISING": "Book soon if you haven't.", "WAIT": "No action needed."}[d["verdict"]])
-    return "\n".join(L)
+def welcome_message(cfg: dict) -> str:
+    names = h(", ".join(cfg["airlines"].values()))
+    budget = " & ".join(cfg["short_names"][c] for c in cfg.get("budget_airlines", []))
+    trips = cfg["trips"]
+    others = [trip_dates(t) for t in trips[1:]]
+    other_lines = [" · ".join(others[i:i + 2]) for i in range(0, len(others), 2)]
+    return "\n".join([
+        "💍 <b>Welcome to JJ &amp; WQ's Bali Tracker!</b>",
+        "We're watching flight prices for our wedding at <b>Glamp Nusa, Nusa Dua</b> on <b>Sat 4 Sep 2027</b>, "
+        "and we'll post here when it's a good time to book.",
+        "",
+        f"✈️ <b>{names}</b>",
+        "Direct flights, same airline both ways. Prices are per person, return.",
+        "SIN = Singapore Changi · DPS = Bali (Denpasar)",
+        "",
+        "🏡 Check-in 3pm Fri 3 · check-out 12pm Sun 5",
+        "The flights we track land in Bali from midday and mostly leave Bali in the evening "
+        "(Garuda's only flight back is at 2pm). Glamp Nusa is about 25 min from the airport.",
+        "",
+        "📅 <b>Dates we track</b>",
+        f"{trip_dates(trips[0])} ({h(trips[0].get('label', '').lower())})",
+        *other_lines,
+        "",
+        "🚦 <b>What our labels mean</b>",
+        "🔥 Book now: lowest in 30 days, or a sudden drop",
+        "✅ Good price: at or below usual",
+        "⏳ Wait: above usual, we'll post when it drops",
+        "📈 Rising: going up, book soon if your dates are fixed",
+        "👀 Still tracking: under 2 weeks of prices so far",
+        "",
+        f"🧳 {h(budget)}'s fare is cabin bag only (about S${2 * cfg['bag_fee_sgd']:.0f} more for a 20kg bag "
+        "both ways). SQ and Garuda include a checked bag.",
+        "",
+        f"📊 {link(cfg.get('report_url'), 'Price chart')} · Summary every Sunday",
+    ])

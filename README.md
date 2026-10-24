@@ -1,70 +1,84 @@
 # SIN ⇄ Bali wedding flight tracker
 
-Tracks nonstop economy fares **Singapore (SIN) ⇄ Bali (DPS)** for our wedding on **Sat 4 Sep 2027**,
-stores its own price history, and posts plain-English alerts to a Telegram channel guests can join.
-Runs on GitHub Actions; no server needed.
+Tracks direct economy fares **Singapore (SIN) ⇄ Bali (DPS)** for our wedding at **Glamp Nusa, Nusa Dua**
+on **Sat 4 Sep 2027**, stores its own price history, and posts plain-English alerts to a Telegram channel
+guests can join. Runs on GitHub Actions; no server needed.
 
-- All prices are **per person, economy, 1 adult, nonstop**, and are the airline's **cheapest fare type**
-  (Scoot's basic fare, SQ Economy Lite, KLM/Garuda's lowest economy fare), as shown by Google Flights.
-- Airlines tracked: **Scoot (TR), Singapore Airlines (SQ), KLM (KL), Garuda Indonesia (GA)**.
-  AirAsia is not tracked: Indonesia AirAsia stopped flying Singapore–Bali nonstop in July 2026.
-  If AirAsia (QZ/AK) shows up on the route again, the admin chat gets a note.
+- Every price is a **same-airline return** for a **specific pair of flights**, per person, economy, 1 adult.
+  (Until 24 Oct 2026 the tracker used Google's cheapest round trip per outbound airline, which could pair
+  an SQ flight out with a Garuda flight back. That older data is kept in `data/prices_legacy.csv` but not used.)
+- Airlines: **Scoot (TR), Singapore Airlines (SQ), Garuda (GA)**. KLM was dropped by choice. AirAsia isn't
+  tracked (Indonesia AirAsia stopped flying Singapore–Bali nonstop in July 2026); if QZ/AK reappears on
+  the route, the admin chat gets a note.
 
 ## What is tracked
 
-| ID | Trip | Runs |
-|---|---|---|
-| `core` | Round trip Fri 3 → Sun 5 Sep | daily 09:07 SGT; also 21:07 SGT from 1 Mar 2027 |
-| `flex` | Round trip Thu 2 → Mon 6 Sep | daily 09:07 SGT |
-| `out_wed`, `out_fri` | One-way SIN→Bali Wed 1 / Fri 3 Sep | daily 09:07 SGT |
-| `back_sun`, `back_mon` | One-way Bali→SIN Sun 5 / Mon 6 Sep | daily 09:07 SGT |
+**Planned flights.** Picked for the 3pm check-in / 12pm check-out at Glamp Nusa (~25 min from DPS):
+land in Bali from midday, or leave Singapore after work; leave Bali in the evening.
 
-For each search we store, per airline, the cheapest nonstop (price, flight number, times), plus the
-cheapest **afternoon/evening** option (lands in Bali 12:00–23:59 / leaves Bali 12:00–23:59; edit
-`time_windows` in `config.yaml`). The one-way legs drive the **mix & match** line in the digest
-(e.g. Scoot out + SQ back).
+| Airline | Option | SIN → DPS | DPS → SIN |
+|---|---|---|---|
+| Scoot | daytime | TR 288 · 10:15 → 13:05 | TR 283 · 19:40 → 22:35 |
+| Scoot | after work (main weekend only) | TR 346 · 21:15 → 00:05 | TR 283 · 19:40 → 22:35 |
+| SQ | daytime | SQ 938 · 09:15 → 12:00 | SQ 945 · 20:00 → 22:40 |
+| SQ | after work (main weekend only) | SQ 948 · 21:35 → 00:10 | SQ 945 · 20:00 → 22:40 |
+| Garuda | daytime (only daily flights) | GA 843 · 09:40 → 12:35 | GA 842 · 14:00 → 16:45 ⚠️ tight after 12pm check-out |
+
+**Date pairs:** Fri 3 → Sun 5 (main weekend), Fri 3 → Mon 6, Wed 1 → Sun 5, Wed 1 → Mon 6, Fri 3 → Wed 8.
+
+**How prices are found** (all in `config.yaml`):
+- **Scoot** prices each flight separately, so its return = two one-way fares. **5 one-way searches a day**
+  (Wed 1 / Fri 3 to Bali; Sun 5 / Mon 6 / Wed 8 back) give the exact price of each planned Scoot flight.
+- **SQ and Garuda** return tickets are much cheaper than two one-ways, so each pair gets its own
+  **return-ticket search restricted to that airline and those departure hours** (`include_airlines`,
+  `outbound_times`, `return_times`). Main-weekend daytime pairs are checked every 2 days, the other
+  9 pairs weekly, spread across the week.
+- If a planned flight isn't listed for a date (schedule change, not on sale yet), it is skipped and
+  the admin chat is told. Nothing is guessed.
 
 ### SerpApi budget (free plan = 250 searches/month)
 
-| Period | Searches/day | ≈ per month |
-|---|---|---|
-| now → 28 Feb 2027 | 6 | 186 |
-| 1 Mar → 3 Sep 2027 | 6 + 1 (evening `core`) | 217 |
+About **226 searches a month**: 5 one-ways a day (155) + about 71 return-ticket searches. The first run
+prices everything at once (16 searches). A hard guard skips any run that would take the month past
+**235** and tells the admin chat; a warning goes out at 230. Every call is logged in `data/tracker.db`
+(`api_calls`). Runs stop after 3 Sep 2027; disable the workflow after.
 
-GitHub's own scheduler often starts runs hours late or drops them, so the on-time runs are started
-by a **Claude scheduled task** (09:07 SGT daily, plus 21:07 SGT from March) that triggers the workflow
-with mode `scheduled`. GitHub's cron is kept only as a **backup** (11:37 SGT, and 23:37 SGT from
-March). Both use `--skip-if-done`: if that slot already ran successfully that day, the run exits
-straight away with no API calls.
+### When it runs
 
-A hard guard skips any run that would take the month past **235** calls and tells the admin chat
-(leaves ~15 for manual runs). A warning goes to the admin chat at 200. Every call is logged in
-`data/tracker.db` (`api_calls`). Runs stop automatically after 3 Sep 2027; disable the workflow after.
+GitHub's own scheduler often starts runs hours late or drops them, so the 09:07 SGT run is started by a
+**Claude scheduled task** (a routine with this repo attached) that triggers the workflow with mode
+`scheduled`. GitHub's cron is kept only as a **backup** at 11:37 SGT. Both use `--skip-if-done`, so if
+today's run already happened the backup exits straight away with no API calls. Fares this far out don't
+move within a day, so there's one run a day.
 
-## Alerts (guest channel)
+## Messages (guest channel)
 
-Checked for every trip × airline. An alert is posted when **any** of these is true:
+All messages use Telegram HTML (bold, italics, links), 12-hour times and `SIN → DPS` / `DPS → SIN`.
 
-1. **Google says low:** Google rates the route "low" and the price is under Google's typical range.
-2. **Lowest in 30 days:** with ≥14 days of our own data, the price is at the 30-day low and ≥10% below the 30-day median.
-3. **Seat sale:** ≥12% cheaper than the previous run.
-4. **Target hit:** only if `rules.target_price` is set in `config.yaml`.
+**Deal alerts**, checked for every flight pair. Posted when **any** of these is true:
+1. **Lowest in 30 days:** with ≥14 days of data, at the 30-day low and ≥10% below the 30-day median.
+2. **Sudden drop:** ≥12% cheaper than the previous check of that pair.
+3. **Target hit:** main weekend only, if `rules.target_price` is set.
 
-Each trip+airline then has a 72-hour cooldown, unless the price drops a further 5%.
-A **"prices climbing"** warning is posted when the cheapest `core` price has been ≥15% above its
-30-day median for 3 days in a row.
+Each pair then has a 72-hour cooldown, unless the price drops a further 5%. Pairs that fire on the same
+day share one message, one block per airline and flight option. (Google's "price level" is no longer
+used: it rates the whole route, not one airline's specific flights.)
 
-**Weekly digest** every Sunday morning: first a **chart picture** of the Fri→Sun round trip (one line
-per airline, Google's typical range shaded, ▲ where alerts fired), then the summary: cheapest round trip
-per airline (both trips), mix & match combos, afternoon/evening options, change vs last week, lowest
-seen, and one verdict:
+**Prices rising:** posted when an airline's main-weekend daytime price has been ≥15% above its 30-day
+median for its last 3 checks.
 
-| Verdict | Meaning |
+**Sunday summary**, after a chart picture of the main-weekend daytime price per airline (▲ = alert sent).
+One block per airline: its verdict and why, its flight times, its price for every date pair (with
+"checked Thu" when not checked today), the after-work option, and its bag rule. The closing line only
+recommends airlines worth booking, so a rising price never says "good time to book".
+
+| Verdict (per airline) | Meaning |
 |---|---|
-| **BOOK NOW** | Genuinely low (an alert rule fired). After 31 May 2027: any price at/below the 30-day median. |
-| **GOOD PRICE** | At/below the 30-day median, or Google says "low". Fine to book. |
-| **WAIT** | Higher than usual. No action needed. |
-| **RISING** | Prices climbing. Book soon. |
+| 🔥 **Book now** | An alert rule fires. From 1 Jun 2027: any price at or below its usual. |
+| ✅ **Good price** | At or below its 30-day median. |
+| ⏳ **Wait** | Above its usual price. |
+| 📈 **Rising** | ≥15% above usual for 3 checks in a row. |
+| 👀 **Still tracking** | Under 2 weeks of prices for that airline. |
 
 ## Strategy notes baked in
 
@@ -80,9 +94,9 @@ seen, and one verdict:
 ### Baggage and seats (check at booking)
 
 - **Scoot**'s cheapest fare: 10 kg cabin bag only. **No checked bag, no seat choice.** The bundle
-  fares add 20 kg. The digest uses `bag_fee_sgd` (default **S$40 each way**) as a rough add-on. Edit it in `config.yaml`.
+  fares add 20 kg. Messages use `bag_fee_sgd` (default **S$40 each way**) as a rough add-on. Edit it in `config.yaml`.
 - **Singapore Airlines** Economy Lite includes a checked bag. Advance seat choice costs extra.
-- **KLM / Garuda** are full-service. Their cheapest fare usually includes a checked bag, but confirm at booking.
+- **Garuda** is full-service; its cheapest fare usually includes a checked bag, but confirm at booking.
 
 ## Setup (one time)
 
@@ -125,15 +139,20 @@ in `config.yaml` if it differs).
 Repo → **Actions → track → Run workflow**, choose a mode:
 1. `test-admin`: you should get a test message in your private chat with the bot.
 2. `dry-run`: uses saved sample data, makes no API calls, and prints all messages in the job log.
-3. `welcome`: posts and pins the welcome message in the guest channel.
-4. `run`: a real run (6 SerpApi calls).
+3. `preview`: real searches (all 16), but every guest message goes to your admin chat, marked PREVIEW.
+   Also saves the raw responses as dry-run samples.
+4. `welcome`: posts and pins the welcome message (replacing any pinned post).
+5. `announce`: posts `announcement.html` to the guest channel (for one-off notices).
+6. `run`: a normal run.
 
-After that it runs by itself every day.
+Then create the daily **Claude scheduled task** (09:07 Asia/Singapore, this repo attached) that runs
+`gh workflow run track.yml -R <owner>/<repo> --ref main -f mode=scheduled`.
 
 ## Day-to-day
 
-- **Change settings:** edit `config.yaml` on GitHub (target price, bag fee, time windows, thresholds).
-- **Data:** `data/tracker.db` (SQLite) plus `data/prices.csv`, `data/runs.csv` and `data/alerts.csv`,
+- **Change settings:** edit `config.yaml` on GitHub (flights, date pairs, target price, bag fee, thresholds).
+- **Data:** `data/tracker.db` (SQLite) plus `data/prices.csv` (one row per flight pair per check),
+  `data/runs.csv` and `data/alerts.csv`,
   committed after every run. Every run (ok / partial / api_error / quota_skip / error) is logged in `runs`.
 - **Errors:** API errors, quota skips and crashes go to the admin chat only. Guests never see them.
 
@@ -141,19 +160,19 @@ After that it runs by itself every day.
 
 | File | What it does |
 |---|---|
-| `config.yaml` | trips, airlines, time windows, quota, rule thresholds |
+| `config.yaml` | airlines, planned flights, date pairs, search frequency, quota, rule thresholds |
 | `fetch.py` | `FlightProvider` interface + `SerpApiProvider` (Google Flights via SerpApi) + `SampleProvider` (dry run) |
 | `store.py` | SQLite schema, call counter, run log, CSV export |
 | `rules.py` | alert rules, cooldown, "prices climbing", verdict (pure functions) |
 | `notify.py` | Telegram guest/admin delivery and message templates |
 | `report.py` | builds `docs/report.html` (Chart.js, mobile-first) and the weekly chart picture (matplotlib) |
 | `main.py` | orchestration and CLI |
-| `tests/test_rules.py` | unit tests for every rule, cooldown and the hard-deadline verdict |
+| `tests/` | rules (every alert rule, cooldown, rising, verdicts, hard deadline), flight-pair pricing, search schedule and budget, message wording, the backup-run guard |
 
 ```bash
 pip install -r requirements.txt
 python -m unittest discover -s tests -v
-python main.py --dry-run --slot morning --digest     # zero API calls, prints messages
+python main.py --dry-run --digest                    # zero API calls, prints messages
 python main.py --dry-run --test-admin                # print the admin test message
 ```
 

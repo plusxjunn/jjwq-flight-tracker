@@ -1,4 +1,4 @@
-"""Daily run: fetch prices → store → evaluate rules → notify → export CSV + report."""
+"""Daily run: fetch prices → price each planned flight pair → store → alerts → digest → CSV + report."""
 from __future__ import annotations
 
 import argparse
@@ -25,164 +25,219 @@ DB_PATH = ROOT / "data" / "tracker.db"
 def load_config(path: str | Path = ROOT / "config.yaml") -> dict:
     with open(path) as f:
         cfg = yaml.safe_load(f)
-    for k in ("twice_daily_from", "end_date"):
-        if isinstance(cfg["schedule"][k], str):
-            cfg["schedule"][k] = date.fromisoformat(cfg["schedule"][k])
+    if isinstance(cfg["schedule"]["end_date"], str):
+        cfg["schedule"]["end_date"] = date.fromisoformat(cfg["schedule"]["end_date"])
+    for t in cfg["trips"]:
+        t["out"], t["back"] = str(t["out"]), str(t["back"])
     return cfg
 
 
-def specs_for(cfg: dict, slot: str | None = None) -> list[SearchSpec]:
+# ---- what to search ---------------------------------------------------------
+
+def pairs(cfg: dict) -> list[dict]:
+    """Every planned flight pair: one per trip × airline × option (day / after_work)."""
     out = []
-    for s in cfg["searches"]:
-        if slot and slot not in s.get("slots", ["morning"]):
-            continue
-        back = s.get("direction") == "back"
-        out.append(SearchSpec(
-            id=s["id"], type=s["type"], label=s["label"], group=s.get("group"),
-            direction=s.get("direction", "out"),
-            origin=cfg["destination"] if back else cfg["origin"],
-            destination=cfg["origin"] if back else cfg["destination"],
-            outbound_date=str(s["outbound_date"]),
-            return_date=str(s["return_date"]) if s.get("return_date") else None,
-        ))
+    for airline, opts in cfg["options"].items():
+        for option, o in opts.items():
+            for t in cfg["trips"]:
+                if o.get("trips") and t["id"] not in o["trips"]:
+                    continue
+                out.append(dict(pair_id=f"{t['id']}:{airline}:{option}", trip=t, airline=airline, option=option,
+                                out_flight=o["out"], back_flight=o["back"], source=cfg["pricing"][airline]))
     return out
 
 
-def in_window(spec: SearchSpec, flight, cfg: dict) -> bool:
-    """Afternoon/evening preference: land in Bali in window, or leave Bali in window."""
-    tw = cfg["time_windows"]
-    if spec.direction == "back":
-        lo, hi, t = *tw["back_depart"], flight.depart[-5:]
-    else:
-        lo, hi, t = *tw["out_arrive"], flight.arrive[-5:]
-        if flight.arrive[:10] > flight.depart[:10]:   # lands after midnight: count as evening
-            t = "23:59"
-    return lo <= t <= hi
+def mmdd(iso: str) -> str:
+    return iso[5:7] + iso[8:10]
 
 
-def build_quotes(result, cfg: dict) -> list[dict]:
-    """Cheapest nonstop per tracked airline, any time (preferred=0) and in the time window (preferred=1)."""
-    quotes = []
-    for preferred in (0, 1):
-        best: dict[str, object] = {}
-        for f in result.flights:
-            if f.stops or f.airline not in cfg["airlines"]:
+def hour_window(hhmm: str) -> str:
+    """SerpApi time window covering the hour a flight departs, e.g. '09:15' -> '9,9'."""
+    h = int(hhmm[:2])
+    return f"{h},{h}"
+
+
+def one_way_specs(cfg: dict) -> list[SearchSpec]:
+    outs = sorted({t["out"] for t in cfg["trips"]})
+    backs = sorted({t["back"] for t in cfg["trips"]})
+    o, d = cfg["origin"], cfg["destination"]
+    return ([SearchSpec(id=f"ow_out_{mmdd(x)}", type="one_way", origin=o, destination=d, outbound_date=x,
+                        direction="out") for x in outs] +
+            [SearchSpec(id=f"ow_back_{mmdd(x)}", type="one_way", origin=d, destination=o, outbound_date=x,
+                        direction="back") for x in backs])
+
+
+def return_spec(cfg: dict, p: dict) -> SearchSpec:
+    return SearchSpec(
+        id="rt_" + p["pair_id"].replace(":", "_"), type="round_trip", origin=cfg["origin"],
+        destination=cfg["destination"], outbound_date=p["trip"]["out"], return_date=p["trip"]["back"],
+        include_airlines=p["airline"], outbound_times=hour_window(cfg["flights"][p["out_flight"]][0]),
+        return_times=hour_window(cfg["flights"][p["back_flight"]][0]))
+
+
+def due_return_specs(cfg: dict, store: Store, today: date, force: bool = False) -> list[SearchSpec]:
+    """Return-ticket searches due today. Each repeats every N days on its own phase so they spread
+    across the week; one that missed its day (e.g. quota skip) catches up as soon as possible."""
+    every = cfg["return_search_every_days"]
+    main_id = cfg["trips"][0]["id"]
+    due, idx = [], {"main_day": 0, "other": 0}
+    for p in pairs(cfg):
+        if p["source"] != "return":
+            continue
+        kind = "main_day" if p["trip"]["id"] == main_id and p["option"] == "day" else "other"
+        n, i = every[kind], idx[kind]
+        idx[kind] += 1
+        spec = return_spec(cfg, p)
+        last = store.last_search_day(spec.id)
+        if force or last is None or (today - last).days >= n or (
+                last < today and (today.toordinal() + i) % n == 0):
+            due.append(spec)
+    return due
+
+
+# ---- pricing ------------------------------------------------------------------
+
+def find_flight(result, flight_number: str):
+    if result is None:
+        return None
+    return next((f for f in result.flights if not f.stops and f.flight_numbers == flight_number), None)
+
+
+def times(cfg: dict, flight_number: str, live) -> tuple[str, str]:
+    if live is not None:
+        return live.depart[-5:], live.arrive[-5:]
+    return tuple(cfg["flights"][flight_number])
+
+
+def price_pairs(cfg: dict, results: dict) -> tuple[list[dict], list[str]]:
+    """Turn today's search results into same-airline pair prices. Returns (quotes, warnings)."""
+    quotes, warnings = [], []
+    for p in pairs(cfg):
+        t = p["trip"]
+        ow_out = results.get(f"ow_out_{mmdd(t['out'])}")
+        ow_back = results.get(f"ow_back_{mmdd(t['back'])}")
+        f_out, f_back = find_flight(ow_out, p["out_flight"]), find_flight(ow_back, p["back_flight"])
+        url, price = None, None
+        if p["source"] == "one_way":
+            if ow_out is None or ow_back is None:
+                continue                          # search failed; already reported
+            if f_out is None or f_back is None:
+                missing = p["out_flight"] if f_out is None else p["back_flight"]
+                warnings.append(f"{p['pair_id']}: {missing} not on sale/listed for that date")
                 continue
-            if preferred and not in_window(result.spec, f, cfg):
+            price = f_out.price + f_back.price
+            url = notify.flights_url(cfg, t, p["airline"])
+        else:
+            rt = results.get("rt_" + p["pair_id"].replace(":", "_"))
+            if rt is None:
+                continue                          # not due today, or failed
+            hit = find_flight(rt, p["out_flight"])
+            if hit is None:
+                warnings.append(f"{p['pair_id']}: {p['out_flight']} + {p['back_flight']} return not found")
                 continue
-            if f.airline not in best or f.price < best[f.airline].price:
-                best[f.airline] = f
-        overall = min(best.values(), key=lambda f: f.price, default=None)
-        for code, f in best.items():
-            quotes.append(dict(airline=code, price=f.price, flights=f.flight_numbers, depart=f.depart,
-                               arrive=f.arrive, preferred=preferred, is_overall_min=f is overall))
-    return quotes
+            price, url = hit.price, rt.url
+        out_dep, out_arr = times(cfg, p["out_flight"], f_out)
+        back_dep, back_arr = times(cfg, p["back_flight"], f_back)
+        quotes.append(dict(pair_id=p["pair_id"], trip=t["id"], airline=p["airline"], option=p["option"],
+                           price=price, out_flight=p["out_flight"], out_dep=out_dep, out_arr=out_arr,
+                           back_flight=p["back_flight"], back_dep=back_dep, back_arr=back_arr,
+                           source=p["source"], url=url))
+    return quotes, warnings
 
 
 def points(rows) -> list[rules.Point]:
     return [rules.Point(datetime.fromisoformat(r["ts"]), r["price"]) for r in rows]
 
 
-def short(cfg, code):
-    return cfg["short_names"].get(code, code)
+def trip_by_id(cfg: dict, trip_id: str) -> dict:
+    return next(t for t in cfg["trips"] if t["id"] == trip_id)
 
 
-def dshort(iso: str) -> str:
-    d = date.fromisoformat(iso)
-    return f"{d:%a} {d.day}"
+# ---- verdicts & digest ------------------------------------------------------------
 
-
-def resolve_slot(arg: str, now: datetime) -> str:
-    if arg != "auto":
-        return arg
-    return "morning" if now.hour < 15 else "evening"
-
-
-# ---- digest -----------------------------------------------------------------
-
-def build_digest(store: Store, cfg: dict, specs: list[SearchSpec], now: datetime) -> dict:
+def airline_verdict(cfg: dict, store: Store, airline: str, now: datetime) -> dict:
+    """Verdict for one airline, from its main-weekend daytime pair."""
     rc = cfg["rules"]
-    d: dict = {"round_trips": [], "mix": [], "after_work": []}
-    for s in specs:
-        if s.type == "round_trip":
-            q = store.latest_quotes(s.id)
-            d["round_trips"].append({"label": s.label, "prices": [(short(cfg, r["airline"]), r["price"]) for r in q]})
-    outs = [s for s in specs if s.type == "one_way" and s.direction == "out"]
-    backs = [s for s in specs if s.type == "one_way" and s.direction == "back"]
-    for o in outs:
-        for b in backs:
-            qo, qb = store.latest_quotes(o.id), store.latest_quotes(b.id)
-            if qo and qb:
-                d["mix"].append({"label": f"{dshort(o.outbound_date)} → {dshort(b.outbound_date)}",
-                                 "out_airline": short(cfg, qo[0]["airline"]),
-                                 "back_airline": short(cfg, qb[0]["airline"]),
-                                 "total": qo[0]["price"] + qb[0]["price"]})
-    for s in outs + backs:
-        q = store.latest_quotes(s.id, preferred=1)
-        if q:
-            r = q[0]
-            d["after_work"].append({"label": f"{dshort(s.outbound_date)} {'out' if s.direction == 'out' else 'back'}",
-                                    "airline": short(cfg, r["airline"]), "flight": r["flights"],
-                                    "depart": notify.hhmm(r["depart"]), "arrive": notify.hhmm(r["arrive"]),
-                                    "price": r["price"]})
+    pid = f"{cfg['trips'][0]['id']}:{airline}:day"
+    latest = store.latest_pair(pid)
+    if latest is None:
+        return {"verdict": "TRACKING", "why": "No prices yet"}
+    ts = datetime.fromisoformat(latest["ts"])
+    price = latest["price"]
+    prior = points(store.pair_history(pid, before=ts))
+    first = datetime.fromisoformat(store.pair_history(pid)[0]["ts"])
 
-    core = store.latest_quotes("core")
-    hist = store.quote_history("core", None)
-    d["core_price"] = core[0]["price"] if core else None
-    d["core_airline"] = short(cfg, core[0]["airline"]) if core else None
-    week = store.latest_quotes("core", at_or_before=now - timedelta(days=7))
-    d["last_week"] = week[0]["price"] if week else None
-    if hist:
-        low = min(hist, key=lambda r: r["price"])
-        d["lowest_seen"] = (low["price"], low["ts"])
-    d["verdict"] = core_verdict(store, cfg, now)
-    return d
+    week = store.latest_pair(pid, at_or_before=now - timedelta(days=6, hours=12))
+    if week is None:
+        change = f"Tracking since {first.day} {first:%b}"
+    else:
+        diff = price - week["price"]
+        change = ("No change this week" if abs(diff) < 1 else
+                  f"{'Down' if diff < 0 else 'Up'} {notify.money(abs(diff))} this week")
+
+    if not rules.has_history(prior, now.date(), rc["history_min_days"]):
+        return {"verdict": "TRACKING", "why": change}
+    med = rules.median_30(prior, now.date(), rc)
+    usual = ""
+    if med:
+        usual = ("at its usual" if abs(price - med) <= med * 0.02 else
+                 "below its usual" if price < med else "above its usual") + f" ~{notify.money(med)}"
+    reasons = rules.evaluate_deal(price, now, prior, rules.Insights(), rc)
+    up, _ = rules.climbing(points(store.pair_history(pid)), now.date(), rc)
+    v = rules.verdict(price, now, prior, rules.Insights(), reasons, up, rc)
+    why = reasons[0].text[0].upper() + reasons[0].text[1:] if (v == "BOOK NOW" and reasons) else \
+        ", ".join(x for x in (change, usual) if x)
+    return {"verdict": v, "why": why}
 
 
-def core_verdict(store: Store, cfg: dict, now: datetime) -> str:
-    core = store.latest_quotes("core")
-    if not core:
-        return "WAIT"
-    price = core[0]["price"]
-    s = store.latest_search("core")
-    ins = rules.Insights(s["price_level"], s["typical_low"], s["typical_high"])
-    prior = points(store.quote_history("core", None, before=datetime.fromisoformat(core[0]["ts"])))
-    reasons = [r for r in rules.evaluate_deal(price, now, prior, ins, cfg["rules"]) if r.kind != "sharp_drop"]
-    is_climbing, _ = rules.climbing(points(store.quote_history("core", None)), now.date(), cfg["rules"])
-    return rules.verdict(price, now, prior, ins, reasons, is_climbing, cfg["rules"])
+def build_digest(cfg: dict, store: Store, now: datetime) -> list[dict]:
+    blocks = []
+    main = cfg["trips"][0]["id"]
+    for airline in cfg["airlines"]:
+        day = store.latest_pair(f"{main}:{airline}:day")
+        b = {"airline": airline, **airline_verdict(cfg, store, airline, now), "flights": day, "trips": [],
+             "after_work": None}
+        for t in cfg["trips"]:
+            q = store.latest_pair(f"{t['id']}:{airline}:day")
+            b["trips"].append({"trip": t, "price": q["price"] if q else None,
+                               "checked": datetime.fromisoformat(q["ts"]) if q else None})
+        aw = store.latest_pair(f"{main}:{airline}:after_work")
+        if aw is not None:
+            b["after_work"] = aw
+        blocks.append(b)
+    return blocks
 
 
-# ---- main run ---------------------------------------------------------------
+# ---- main run -------------------------------------------------------------------
 
-def run(cfg: dict, store: Store, provider, notifier, now: datetime, slot: str,
-        dry_run: bool, force_digest: bool = False, report_path: Path | None = None) -> str:
+def run(cfg: dict, store: Store, provider, notifier, now: datetime, dry_run: bool,
+        force_digest: bool = False, report_path: Path | None = None, preview: bool = False) -> str:
     rc = cfg["rules"]
-    specs = specs_for(cfg, slot)
-    run_id = store.start_run(slot, now)
+    run_id = store.start_run("morning", now)
+    specs = one_way_specs(cfg) + due_return_specs(cfg, store, now.date(), force=preview)
     limit = cfg["quota"]["monthly_limit"]
     used_before = store.calls_this_month(now)
 
     if not dry_run and used_before + len(specs) > limit:
-        msg = (f"Skipped the {slot} run: {used_before} SerpApi calls used this month, this run needs "
+        msg = (f"Skipped today's run: {used_before} SerpApi calls used this month, this run needs "
                f"{len(specs)}, limit is {limit}.")
         store.finish_run(run_id, "quota_skip", 0, msg)
         notifier.admin("⚠️ " + msg)
         return "quota_skip"
 
-    calls, errors, results = 0, [], []
+    calls, errors, results = 0, [], {}
     for spec in specs:
         try:
             result = provider.search(spec)
-            ok = True
         except ProviderError as e:
-            result, ok = None, False
+            result = None
             errors.append(f"{spec.id}: {e}")
         calls += 1
-        store.log_call(run_id, spec.id, ok, now)
+        store.log_call(run_id, spec.id, result is not None, now)
         if result is None:
             continue
-        store.save_search(run_id, now, result, build_quotes(result, cfg))
-        results.append(result)
+        store.record_search(run_id, now, result)
+        results[spec.id] = result
 
         seen = {f.airline for f in result.flights if not f.stops and f.airline in cfg.get("watch_airlines", {})}
         for code in seen:
@@ -192,47 +247,56 @@ def run(cfg: dict, store: Store, provider, notifier, now: datetime, slot: str,
                                f"{spec.id} again. Add it to 'airlines' in config.yaml if you want it tracked.")
                 store.save_alert(now, "watch", None, code, None, spec.id)
 
-    # ---- deal alerts (per search, per airline) ----
-    deals = []
-    for result in results:
-        spec = result.spec
-        ins = rules.Insights(result.price_level, result.typical_low, result.typical_high)
-        for q in [q for q in build_quotes(result, cfg) if q["preferred"] == 0]:
-            hist = points(store.quote_history(spec.id, q["airline"], before=now))
-            reasons = rules.evaluate_deal(q["price"], now, hist, ins, rc)
-            if not reasons:
-                continue
-            last = store.last_alert("deal", spec.id, q["airline"])
-            if not rules.cooldown_allows(now, q["price"], datetime.fromisoformat(last["ts"]) if last else None,
-                                         last["price"] if last else None, rc):
-                continue
-            low = min(store.quote_history(spec.id, q["airline"]), key=lambda r: r["price"])
-            deals.append(dict(spec=spec, airline=q["airline"], short=short(cfg, q["airline"]), price=q["price"],
-                              lowest=(low["price"], low["ts"]), reasons=reasons, url=result.url))
-            store.save_alert(now, "deal", spec.id, q["airline"], q["price"], "; ".join(r.kind for r in reasons))
-    if deals:
-        notifier.guest(notify.deals_message(deals, cfg))
+    quotes, warnings = price_pairs(cfg, results)
+    for q in quotes:
+        store.save_pair(now, q)
 
-    # ---- prices climbing (core) ----
-    core = next((r for r in results if r.spec.id == "core"), None)
-    if core:
-        is_up, above = rules.climbing(points(store.quote_history("core", None)), now.date(), rc)
-        last = store.last_alert("climbing", "core", None)
-        if is_up and (not last or now - datetime.fromisoformat(last["ts"]) >= timedelta(hours=rc["cooldown_hours"])):
-            price = store.latest_quotes("core")[0]["price"]
-            notifier.guest(notify.climbing_message(core.spec, price, above, rc["climbing_days"], core.url))
-            store.save_alert(now, "climbing", "core", None, price, f"{above}% above median")
+    # ---- deal alerts: per pair, grouped into one block per airline + option ----
+    main = cfg["trips"][0]["id"]
+    blocks: dict[tuple, dict] = {}
+    for q in quotes:
+        hist = points(store.pair_history(q["pair_id"], before=now))
+        pair_rc = dict(rc, target_price=rc.get("target_price") if q["trip"] == main else None)
+        reasons = rules.evaluate_deal(q["price"], now, hist, rules.Insights(), pair_rc)
+        if preview and not reasons and q["trip"] == main and q["option"] == "day":
+            reasons = [rules.Reason("preview", "example only: real alerts need a 30-day low or a 12%+ drop")]
+        if not reasons:
+            continue
+        last = store.last_alert("deal", q["pair_id"], q["airline"])
+        if not preview and not rules.cooldown_allows(
+                now, q["price"], datetime.fromisoformat(last["ts"]) if last else None,
+                last["price"] if last else None, rc):
+            continue
+        key = (q["airline"], q["option"])
+        blocks.setdefault(key, {"airline": q["airline"], "option": q["option"], "flights": q, "items": []})
+        blocks[key]["items"].append({"trip": trip_by_id(cfg, q["trip"]), "price": q["price"],
+                                     "reasons": reasons, "url": q["url"]})
+        if not preview:
+            store.save_alert(now, "deal", q["pair_id"], q["airline"], q["price"],
+                             "; ".join(r.kind for r in reasons))
+    if blocks:
+        notifier.guest(notify.deals_message(list(blocks.values()), cfg))
 
-    # ---- weekly digest ----
-    if force_digest or (slot == "morning" and now.weekday() == cfg["schedule"]["digest_weekday"]):
-        # Chart picture first; a failure here must never block the digest itself.
+    # ---- prices rising: main-weekend daytime pair, per airline ----
+    for q in quotes:
+        if q["trip"] != main or q["option"] != "day":
+            continue
+        up, above = rules.climbing(points(store.pair_history(q["pair_id"])), now.date(), rc)
+        last = store.last_alert("climbing", q["pair_id"], q["airline"])
+        if up and (not last or now - datetime.fromisoformat(last["ts"]) >= timedelta(hours=rc["cooldown_hours"])):
+            notifier.guest(notify.rising_message(cfg, q, trip_by_id(cfg, main), above))
+            if not preview:
+                store.save_alert(now, "climbing", q["pair_id"], q["airline"], q["price"], f"{above}% above usual")
+
+    # ---- weekly digest (chart picture first) ----
+    if force_digest or preview or now.weekday() == cfg["schedule"]["digest_weekday"]:
         try:
             png = Path(tempfile.mkdtemp(prefix="flight-chart-")) / "weekly-chart.png"
             if report.chart_png(store, cfg, png):
                 notifier.guest_photo(png, notify.chart_caption(cfg))
         except Exception as e:
             notifier.admin(f"⚠️ Weekly chart picture failed, digest sent without it: {type(e).__name__}: {e}")
-        notifier.guest(notify.digest_message(build_digest(store, cfg, specs_for(cfg), now), cfg))
+        notifier.guest(notify.digest_message(build_digest(cfg, store, now), cfg, now))
 
     # ---- bookkeeping ----
     used_after = used_before + calls
@@ -241,8 +305,11 @@ def run(cfg: dict, store: Store, provider, notifier, now: datetime, slot: str,
         notifier.admin(f"⚠️ {used_after}/{limit} SerpApi calls used this month.")
     status = "ok" if not errors else ("api_error" if not results else "partial")
     if errors:
-        notifier.admin(f"❌ {len(errors)} of {len(specs)} searches failed ({slot} run):\n" + "\n".join(errors))
-    store.finish_run(run_id, status, calls, "; ".join(errors))
+        notifier.admin(f"❌ {len(errors)} of {len(specs)} searches failed:\n" + "\n".join(errors))
+    if warnings:
+        notifier.admin("⚠️ Some planned flights weren't found (schedule change or not on sale yet):\n"
+                       + "\n".join(warnings))
+    store.finish_run(run_id, status, calls, "; ".join(errors + warnings))
     if report_path:
         report.build(store, cfg, report_path, now)
     return status
@@ -250,13 +317,16 @@ def run(cfg: dict, store: Store, provider, notifier, now: datetime, slot: str,
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--dry-run", action="store_true", help="use saved sample, no API calls, print messages")
-    ap.add_argument("--slot", choices=["auto", "morning", "evening"], default="auto")
+    ap.add_argument("--dry-run", action="store_true", help="use saved samples, no API calls, print messages")
+    ap.add_argument("--preview", action="store_true",
+                    help="real searches (all of them), but every guest message goes to the admin chat")
     ap.add_argument("--digest", action="store_true", help="also send the weekly digest now")
     ap.add_argument("--welcome", action="store_true", help="post + pin the welcome message, then exit")
+    ap.add_argument("--announce", metavar="FILE", help="post this file's text (Telegram HTML) to guests, then exit")
     ap.add_argument("--test-admin", action="store_true", help="send a test message to the admin chat, then exit")
     ap.add_argument("--skip-if-done", action="store_true",
-                    help="exit without API calls if this slot already ran today (for backup schedules)")
+                    help="exit without API calls if today's run already happened (scheduled runs)")
+    ap.add_argument("--slot", default="morning", help=argparse.SUPPRESS)   # kept so old commands still work
     ap.add_argument("--now", help="override current time (ISO, SGT) for testing")
     args = ap.parse_args(argv)
 
@@ -268,6 +338,8 @@ def main(argv=None) -> int:
     else:
         notifier = notify.TelegramNotifier(os.environ["TELEGRAM_BOT_TOKEN"], os.environ["TELEGRAM_CHANNEL_ID"],
                                            os.environ["TELEGRAM_ADMIN_CHAT_ID"])
+        if args.preview:
+            notifier = notify.PreviewNotifier(notifier)
 
     if args.test_admin:
         notifier.admin(f"✅ Test message. Bot can reach the admin chat. ({now:%d %b %Y %H:%M} SGT)")
@@ -275,13 +347,12 @@ def main(argv=None) -> int:
     if args.welcome:
         notifier.guest_pinned(notify.welcome_message(cfg))
         return 0
+    if args.announce:
+        notifier.guest(Path(args.announce).read_text().strip())
+        return 0
 
     if now.date() > cfg["schedule"]["end_date"]:
         print(f"Past end date {cfg['schedule']['end_date']}; nothing to do.")
-        return 0
-    slot = resolve_slot(args.slot, now)
-    if slot == "evening" and now.date() < cfg["schedule"]["twice_daily_from"]:
-        print(f"Evening runs start {cfg['schedule']['twice_daily_from']}; nothing to do.")
         return 0
 
     if args.dry_run:
@@ -292,16 +363,17 @@ def main(argv=None) -> int:
         store, provider, report_path = Store(db), SampleProvider(ROOT / "samples"), tmp / "report.html"
     else:
         store = Store(DB_PATH)
-        provider = SerpApiProvider(os.environ["SERPAPI_KEY"], cfg["currency"], cfg["gl"], cfg["hl"])
+        provider = SerpApiProvider(os.environ["SERPAPI_KEY"], cfg["currency"], cfg["gl"], cfg["hl"],
+                                   save_dir=ROOT / "samples" if args.preview else None)
         report_path = ROOT / "docs" / "report.html"
 
-    if args.skip_if_done and store.slot_done(slot, now.date()):
-        print(f"The {slot} run already happened today; nothing to do.")
+    if args.skip_if_done and store.slot_done("morning", now.date()):
+        print("Today's run already happened; nothing to do.")
         store.close()
         return 0
 
     try:
-        status = run(cfg, store, provider, notifier, now, slot, args.dry_run, args.digest, report_path)
+        status = run(cfg, store, provider, notifier, now, args.dry_run, args.digest, report_path, args.preview)
     except Exception as e:
         tb = traceback.format_exc()
         print(tb, file=sys.stderr)
