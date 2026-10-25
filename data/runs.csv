@@ -2,3 +2,4 @@ id,started_at,finished_at,slot,status,calls,detail
 1,2026-10-23T12:17:01+08:00,2026-10-23T12:17:20+08:00,morning,ok,6,
 2,2026-10-24T11:52:31+08:00,2026-10-24T11:52:55+08:00,morning,ok,6,
 3,2026-10-24T21:40:52+08:00,2026-10-24T21:42:03+08:00,morning,ok,16,fri_wed:SQ:day: SQ 938 + SQ 945 return not found; main:SQ:after_work: SQ 948 + SQ 945 return not found
+4,2026-10-25T09:08:50+08:00,2026-10-25T09:09:27+08:00,morning,ok,8,
