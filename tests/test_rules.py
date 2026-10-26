@@ -114,7 +114,7 @@ class Climbing(unittest.TestCase):
         self.assertFalse(rules.climbing(hist, NOW.date())[0])
 
     def test_counts_checks_not_calendar_days(self):
-        # checked every 2 days (like SQ/Garuda): three high checks in a row still count
+        # checked every few days (like the other SQ pairs): three high checks in a row still count
         hist = series([300] * 30, end=NOW - timedelta(days=4)) + [
             Point(NOW - timedelta(days=4), 360), Point(NOW - timedelta(days=2), 360), Point(NOW, 370)]
         self.assertTrue(rules.climbing(hist, NOW.date())[0])

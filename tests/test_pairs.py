@@ -28,7 +28,8 @@ class Pairs(unittest.TestCase):
         ids = {p["pair_id"] for p in main.pairs(CFG)}
         self.assertIn("main:SQ:after_work", ids)
         self.assertNotIn("fri_mon:SQ:after_work", ids)      # after-work flights are main weekend only
-        self.assertEqual(len([i for i in ids if i.endswith(":day")]), 3 * len(CFG["trips"]))
+        self.assertEqual(len([i for i in ids if i.endswith(":day")]), 2 * len(CFG["trips"]))
+        self.assertFalse([i for i in ids if ":GA:" in i])    # Garuda dropped
 
     def test_scoot_is_two_one_way_fares_on_the_planned_flights(self):
         results = {
@@ -56,13 +57,13 @@ class Pairs(unittest.TestCase):
         self.assertEqual((q["price"], q["source"], q["url"]), (380, "return", "u"))
 
     def test_return_spec_filters_airline_and_hours(self):
-        p = next(p for p in main.pairs(CFG) if p["pair_id"] == "main:GA:day")
+        p = next(p for p in main.pairs(CFG) if p["pair_id"] == "main:SQ:after_work")
         s = main.return_spec(CFG, p)
-        self.assertEqual((s.include_airlines, s.outbound_times, s.return_times), ("GA", "9,9", "14,14"))
+        self.assertEqual((s.include_airlines, s.outbound_times, s.return_times), ("SQ", "21,21", "20,20"))
 
 
 class Schedule(unittest.TestCase):
-    def test_main_pairs_every_2_days_others_weekly(self):
+    def test_main_pair_daily_others_every_4_days(self):
         store = Store(Path(tempfile.mkdtemp()) / "t.db")
         start = date(2026, 11, 2)
         counts, steady = {}, 0
@@ -73,8 +74,8 @@ class Schedule(unittest.TestCase):
                 steady += k >= 7                         # day 0 prices everything once
                 store.db.execute("INSERT INTO searches (ts, day, search_id) VALUES (?,?,?)",
                                  (f"{day}T09:07:00+08:00", day.isoformat(), spec.id))
-        self.assertIn(counts["rt_main_SQ_day"], (17, 18, 19))
-        self.assertIn(counts["rt_fri_wed_GA_day"], (5, 6))
+        self.assertEqual(counts["rt_main_SQ_day"], 35)
+        self.assertIn(counts["rt_fri_wed_SQ_day"], (9, 10))
         per_month = (steady + 5 * 28) / 28 * 31         # + 5 one-way searches a day
         self.assertLessEqual(per_month, CFG["quota"]["monthly_limit"])
 
@@ -88,23 +89,21 @@ class Wording(unittest.TestCase):
         return notify.closing_line([{"airline": a, "verdict": x} for a, x in v.items()], CFG)
 
     def test_rising_price_never_says_good_time_for_that_airline(self):
-        line = self.closing(TR="GOOD PRICE", SQ="WAIT", GA="GOOD PRICE")
-        self.assertIn("Good time to book Scoot or Garuda", line)
-        self.assertIn("Singapore Airlines is above usual", line)
+        line = self.closing(TR="GOOD PRICE", SQ="WAIT")
+        self.assertIn("Good time to book Scoot.", line)
+        self.assertIn("Singapore Airlines is above usual; we'll post when it drops", line)
+
+    def test_both_good(self):
+        self.assertIn("Good time to book Scoot or Singapore Airlines.", self.closing(TR="BOOK NOW", SQ="GOOD PRICE"))
 
     def test_all_above_usual(self):
-        self.assertIn("No action needed this week", self.closing(TR="WAIT", SQ="WAIT", GA="WAIT"))
-
-    def test_two_waiting_airlines(self):
-        self.assertIn("Scoot and Singapore Airlines are above usual; we'll post when they drop",
-                      self.closing(TR="WAIT", SQ="WAIT", GA="BOOK NOW"))
+        self.assertIn("No action needed this week", self.closing(TR="WAIT", SQ="WAIT"))
 
     def test_still_tracking(self):
-        self.assertIn("No action needed yet", self.closing(TR="TRACKING", SQ="TRACKING", GA="TRACKING"))
+        self.assertIn("No action needed yet", self.closing(TR="TRACKING", SQ="TRACKING"))
 
     def test_rising_takes_priority(self):
-        self.assertIn("Book soon if your dates are fixed", self.closing(TR="RISING", SQ="GOOD PRICE", GA="WAIT"))
-
+        self.assertIn("Book soon if your dates are fixed", self.closing(TR="RISING", SQ="GOOD PRICE"))
 
 if __name__ == "__main__":
     unittest.main()

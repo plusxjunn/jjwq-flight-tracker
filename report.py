@@ -148,7 +148,7 @@ def build(store, cfg, path: str | Path, now: datetime) -> None:
         .replace("__COLORS_LIGHT__", json.dumps(COLORS_LIGHT)) \
         .replace("__COLORS_DARK__", json.dumps(COLORS_DARK)) \
         .replace("__BAG__", f'{" & ".join(cfg["short_names"][c] for c in cfg.get("budget_airlines", []))} is cabin bag only '
-                            f'(about S${2 * cfg.get("bag_fee_sgd", 40):.0f} more for a 20kg bag both ways). SQ and Garuda include a checked bag.')
+                            f'(about S${2 * cfg.get("bag_fee_sgd", 40):.0f} more for a 20kg bag both ways). SQ includes a checked bag.')
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(page)
 
@@ -214,7 +214,7 @@ td.na { color: var(--muted); }
 
   <h2>Latest prices</h2>
   <div class="scroll">__TABLE__</div>
-  <p class="note">SIN = Singapore Changi · DPS = Bali (Denpasar). SQ and Garuda are checked every few days, Scoot daily.<br>🧳 __BAG__</p>
+  <p class="note">SIN = Singapore Changi · DPS = Bali (Denpasar). Main weekend checked daily; other SQ dates every few days.<br>🧳 __BAG__</p>
 </main>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>

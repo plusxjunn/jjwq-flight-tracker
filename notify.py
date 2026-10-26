@@ -198,8 +198,6 @@ def deal_block(cfg: dict, b: dict) -> str:
             L.append(f"📉 {h(cap(it['reasons'][0].text))}")
     if airline in cfg.get("budget_airlines", []):
         L += ["", bag_line(cfg, airline)]
-    if airline == "GA":
-        L += ["", f"⚠️ {h(cfg['garuda_warning'])}"]
     if len(b["items"]) == 1:
         L += ["", f"👉 <b>Book now:</b> {link(b['items'][0]['url'])}"]
     else:
@@ -271,8 +269,6 @@ def digest_message(blocks: list[dict], cfg: dict, now: datetime) -> str:
             L.append(f"After work: SIN → DPS {t12(aw['out_dep'])}, {trip_dates(cfg['trips'][0])}  "
                      f"<b>{money(aw['price'])}</b>")
         L.append(bag_line(cfg, a, italic=True))
-        if a == "GA":
-            L.append(f"⚠️ <i>{h(cfg['garuda_warning'])}</i>")
     L += ["", closing_line(blocks, cfg)]
     if cfg.get("report_url"):
         L.append(f"📊 {link(cfg['report_url'], 'Price chart')}")
@@ -304,8 +300,8 @@ def welcome_message(cfg: dict) -> str:
         "SIN = Singapore Changi · DPS = Bali (Denpasar)",
         "",
         "🏡 Check-in 3pm Fri 3 · check-out 12pm Sun 5",
-        "The flights we track land in Bali from midday and mostly leave Bali in the evening "
-        "(Garuda's only flight back is at 2pm). Glamp Nusa is about 25 min from the airport.",
+        "The flights we track land in Bali from midday and leave Bali in the evening. "
+        "Glamp Nusa is about 25 min from the airport.",
         "",
         "📅 <b>Dates we track</b>",
         f"{trip_dates(trips[0])} ({h(trips[0].get('label', '').lower())})",
@@ -319,7 +315,7 @@ def welcome_message(cfg: dict) -> str:
         "👀 Still tracking: under 2 weeks of prices so far",
         "",
         f"🧳 {h(budget)}'s fare is cabin bag only (about S${2 * cfg['bag_fee_sgd']:.0f} more for a 20kg bag "
-        "both ways). SQ and Garuda include a checked bag.",
+        "both ways). Singapore Airlines includes a checked bag.",
         "",
         f"📊 {link(cfg.get('report_url'), 'Price chart')} · Summary every Sunday",
     ])

@@ -10,11 +10,9 @@ hl: en
 airlines:            # name used in headings
   TR: Scoot
   SQ: Singapore Airlines
-  GA: Garuda
 short_names:         # name used in tight lines
   TR: Scoot
   SQ: SQ
-  GA: Garuda
 
 # How each airline is priced:
 #   one_way: two one-way tickets (Scoot prices each flight separately, so this IS its return price)
@@ -22,7 +20,6 @@ short_names:         # name used in tight lines
 pricing:
   TR: one_way
   SQ: return
-  GA: return
 
 budget_airlines: [TR]     # cheapest fare is cabin bag only
 bag_fee_sgd: 40           # 20kg bag, each way (rough; check at booking)
@@ -36,8 +33,6 @@ flights:
   SQ 938: ["09:15", "12:00"]
   SQ 948: ["21:35", "00:10"]
   SQ 945: ["20:00", "22:40"]
-  GA 843: ["09:40", "12:35"]
-  GA 842: ["14:00", "16:45"]
 
 # Flight pairs per airline. `trips` limits an option to some date pairs (default: all).
 options:
@@ -47,8 +42,6 @@ options:
   SQ:
     day:        {out: SQ 938, back: SQ 945}
     after_work: {out: SQ 948, back: SQ 945, trips: [main]}
-  GA:
-    day:        {out: GA 843, back: GA 842}
 
 # Date pairs. The first one is the main weekend: it drives verdicts, the chart and "rising" alerts.
 trips:
@@ -58,14 +51,14 @@ trips:
   - {id: wed_mon, out: 2027-09-01, back: 2027-09-06}
   - {id: fri_wed, out: 2027-09-03, back: 2027-09-08}
 
-# Return-ticket searches (SQ, Garuda) are spread out to stay inside the SerpApi free plan.
+# SQ return-ticket searches are spread out to stay inside the SerpApi free plan.
+# (Garuda was dropped on 26 Oct 2026.)
 # One-way searches (5 dates) run every day.
 return_search_every_days:
-  main_day: 2       # SQ and Garuda daytime flights for the main weekend
-  other: 7          # everything else
+  main_day: 1       # SQ daytime flights for the main weekend: daily
+  other: 4          # the other SQ pairs
 
 venue_note: Glamp Nusa is about 25 min from the airport
-garuda_warning: "Only flight back is 2pm: leave right after the 12pm check-out (Glamp Nusa is ~25 min from the airport)"
 
 # Not tracked, but tell the admin chat if they start flying the route nonstop again.
 watch_airlines:
