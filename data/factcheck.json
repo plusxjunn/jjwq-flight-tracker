@@ -1,0 +1,474 @@
+{
+ "TR": {
+  "pair": "TR 288 + TR 283",
+  "legs": [
+   {
+    "flight": "TR 288",
+    "search_price": 228,
+    "booking": [
+     {
+      "ticket": "together",
+      "book_with": "Scoot",
+      "price": 228,
+      "fare": null,
+      "airline_direct": true,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Booking.com",
+      "price": 232,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Expedia",
+      "price": 231,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Trip.com",
+      "price": 246,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Mytrip",
+      "price": 234,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Flightnetwork",
+      "price": 233,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Kiwi.com",
+      "price": 240,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Gotogate",
+      "price": 236,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "ly.com",
+      "price": 234,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Cheaptickets.sg",
+      "price": 241,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "hutchgo.com",
+      "price": 279,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     }
+    ]
+   },
+   {
+    "flight": "TR 283",
+    "search_price": 194,
+    "booking": [
+     {
+      "ticket": "together",
+      "book_with": "Scoot",
+      "price": 194,
+      "fare": null,
+      "airline_direct": true,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Booking.com",
+      "price": 193,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Expedia",
+      "price": 196,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Trip.com",
+      "price": 204,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Gotogate",
+      "price": 197,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Mytrip",
+      "price": 198,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Flightnetwork",
+      "price": 197,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Kiwi.com",
+      "price": 203,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Cheaptickets.sg",
+      "price": 202,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     },
+     {
+      "ticket": "together",
+      "book_with": "Jettzy",
+      "price": 199,
+      "fare": null,
+      "airline_direct": null,
+      "extensions": null
+     }
+    ]
+   }
+  ],
+  "tracker_price": 422
+ },
+ "SQ": {
+  "pair": "SQ 938 + SQ 945",
+  "tracker_price": 613,
+  "return_step_price": 613,
+  "booking": [
+   {
+    "ticket": "together",
+    "book_with": "Agoda",
+    "price": 611,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Expedia",
+    "price": 613,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Booking.com",
+    "price": 630,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "eDreams",
+    "price": 618,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Singapore Airlines",
+    "price": null,
+    "fare": null,
+    "airline_direct": true,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Trip.com",
+    "price": 665,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Gotogate",
+    "price": 639,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Mytrip",
+    "price": 640,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Flightnetwork",
+    "price": 640,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Cheaptickets.sg",
+    "price": 642,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "hutchgo.com",
+    "price": 726,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Jettzy",
+    "price": 732,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Garuda Indonesia",
+    "price": 928,
+    "fare": null,
+    "airline_direct": true,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "wego",
+    "price": 928,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "ly.com",
+    "price": 1008,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Jetabroad",
+    "price": 939,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   }
+  ]
+ },
+ "GA": {
+  "pair": "GA 843 + GA 842",
+  "tracker_price": 587,
+  "return_step_price": 587,
+  "booking": [
+   {
+    "ticket": "together",
+    "book_with": "Garuda Indonesia",
+    "price": 587,
+    "fare": null,
+    "airline_direct": true,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Kiwi.com",
+    "price": 516,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "eDreams",
+    "price": 549,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "wego",
+    "price": 587,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Singapore Airlines",
+    "price": null,
+    "fare": null,
+    "airline_direct": true,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Alitrip",
+    "price": 597,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "hutchgo.com",
+    "price": 590,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Jetabroad",
+    "price": 594,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Jettzy",
+    "price": 593,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Expedia",
+    "price": 409,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Booking.com",
+    "price": 425,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Agoda",
+    "price": 534,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Trip.com",
+    "price": 445,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "ly.com",
+    "price": 425,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Mytrip",
+    "price": 428,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Flightnetwork",
+    "price": 428,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Gotogate",
+    "price": 428,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   },
+   {
+    "ticket": "together",
+    "book_with": "Cheaptickets.sg",
+    "price": 430,
+    "fare": null,
+    "airline_direct": null,
+    "extensions": null
+   }
+  ]
+ }
+}
