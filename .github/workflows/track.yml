@@ -17,6 +17,7 @@ on:
           - scheduled      # used by the daily Claude scheduled task: skip if today's run already happened
           - preview        # real searches (all of them); every guest message goes to the admin chat
           - announce       # post announcement.html to the guest channel
+          - factcheck      # one-off: airline-direct prices from Google's booking step (~10 searches)
           - run-digest     # normal run + weekly digest now
           - dry-run        # sample data, no API calls, prints messages only
           - test-admin     # send a test message to the admin chat
@@ -54,6 +55,7 @@ jobs:
             *:run-digest)            python main.py --digest ;;
             *:preview)               python main.py --preview ;;
             *:announce)              python main.py --announce announcement.html ;;
+            *:factcheck)             python factcheck.py ;;
             *:dry-run)               python main.py --dry-run --digest ;;
             *:test-admin)            python main.py --test-admin ;;
             *:welcome)               python main.py --welcome ;;
