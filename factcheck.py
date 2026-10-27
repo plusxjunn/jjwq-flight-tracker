@@ -48,6 +48,7 @@ def booking(key: str, base: dict, token: str) -> list[dict]:
 
 
 def main_() -> None:
+    main.load_dotenv()
     key = os.environ["SERPAPI_KEY"].strip()
     cfg = main.load_config()
     trip = cfg["trips"][0]

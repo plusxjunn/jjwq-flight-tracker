@@ -22,6 +22,17 @@ ROOT = Path(__file__).parent
 DB_PATH = ROOT / "data" / "tracker.db"
 
 
+def load_dotenv(path: Path = ROOT / ".env") -> None:
+    """Local runs: read KEY=VALUE lines from .env (never committed). Real environment variables win."""
+    if not path.exists():
+        return
+    for line in path.read_text().splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            k, v = line.split("=", 1)
+            os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+
+
 def load_config(path: str | Path = ROOT / "config.yaml") -> dict:
     with open(path) as f:
         cfg = yaml.safe_load(f)
@@ -331,6 +342,7 @@ def main(argv=None) -> int:
     ap.add_argument("--now", help="override current time (ISO, SGT) for testing")
     args = ap.parse_args(argv)
 
+    load_dotenv()
     cfg = load_config()
     now = datetime.fromisoformat(args.now).replace(tzinfo=SGT) if args.now else now_sgt()
 

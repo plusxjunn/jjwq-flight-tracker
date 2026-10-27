@@ -154,6 +154,26 @@ Then create the daily **Claude scheduled task** (09:07 Asia/Singapore, this repo
   committed after every run. Every run (ok / partial / api_error / quota_skip / error) is logged in `runs`.
 - **Errors:** API errors, quota skips and crashes go to the admin chat only. Guests never see them.
 
+## Working locally (Claude desktop app or terminal)
+
+The tracker keeps running on GitHub. Locally you develop, preview and spot-check:
+
+```bash
+git clone https://github.com/plusxjunn/jjwq-flight-tracker.git && cd jjwq-flight-tracker
+python3 -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env    # fill in only if you want --preview / --test-admin from your machine
+python -m unittest discover -s tests
+python main.py --dry-run --digest
+python pricecheck.py
+```
+
+- `CLAUDE.md` briefs Claude on the project, the decisions made and the rules (e.g. never post to the
+  guest channel without approval).
+- `/price-check` (in `.claude/commands/`) has Claude compare `pricecheck.py`'s prices with flyscoot.com
+  and singaporeair.com in your browser, as a normal visitor.
+- Don't run real (non-dry-run) tracker runs locally: GitHub Actions owns `data/`. Always `git pull` first.
+
 ## Code
 
 | File | What it does |
@@ -165,6 +185,8 @@ Then create the daily **Claude scheduled task** (09:07 Asia/Singapore, this repo
 | `notify.py` | Telegram guest/admin delivery and message templates |
 | `report.py` | builds `docs/report.html` (Chart.js, mobile-first) and the weekly chart picture (matplotlib) |
 | `main.py` | orchestration and CLI |
+| `pricecheck.py` | prints the latest price of every planned flight pair (for `/price-check`) |
+| `factcheck.py` | one-off check of airline-direct prices on Google's booking step (`factcheck` mode) |
 | `tests/` | rules (every alert rule, cooldown, rising, verdicts, hard deadline), flight-pair pricing, search schedule and budget, message wording, the backup-run guard |
 
 ```bash
