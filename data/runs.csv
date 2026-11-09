@@ -17,3 +17,4 @@ id,started_at,finished_at,slot,status,calls,detail
 16,2026-11-06T09:08:36+08:00,2026-11-06T09:09:07+08:00,morning,ok,7,main:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
 17,2026-11-07T09:07:58+08:00,2026-11-07T09:08:25+08:00,morning,ok,7,wed_sun:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
 18,2026-11-08T09:08:21+08:00,2026-11-08T09:08:51+08:00,morning,ok,8,main:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet); fri_mon:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
+19,2026-11-09T09:08:27+08:00,2026-11-09T09:09:09+08:00,morning,ok,7,main:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)

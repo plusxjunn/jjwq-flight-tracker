@@ -136,3 +136,10 @@ ts,day,pair_id,trip,airline,option,price,out_flight,out_dep,out_arr,back_flight,
 2026-11-08T09:08:21+08:00,2026-11-08,main:TR:day,main,TR,day,423.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
 2026-11-08T09:08:21+08:00,2026-11-08,wed_mon:TR:day,wed_mon,TR,day,313.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
 2026-11-08T09:08:21+08:00,2026-11-08,wed_sun:TR:day,wed_sun,TR,day,342.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
+2026-11-09T09:08:27+08:00,2026-11-09,fri_mon:TR:day,fri_mon,TR,day,394.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
+2026-11-09T09:08:27+08:00,2026-11-09,fri_wed:SQ:day,fri_wed,SQ,day,601.0,SQ 938,09:15,12:00,SQ 945,20:00,22:40,return
+2026-11-09T09:08:27+08:00,2026-11-09,fri_wed:TR:day,fri_wed,TR,day,373.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
+2026-11-09T09:08:27+08:00,2026-11-09,main:TR:after_work,main,TR,after_work,398.0,TR 346,21:15,00:05,TR 283,19:40,22:35,one_way
+2026-11-09T09:08:27+08:00,2026-11-09,main:TR:day,main,TR,day,423.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
+2026-11-09T09:08:27+08:00,2026-11-09,wed_mon:TR:day,wed_mon,TR,day,313.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
+2026-11-09T09:08:27+08:00,2026-11-09,wed_sun:TR:day,wed_sun,TR,day,342.0,TR 288,10:15,13:05,TR 283,19:40,22:35,one_way
