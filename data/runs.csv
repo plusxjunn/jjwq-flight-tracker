@@ -26,3 +26,18 @@ id,started_at,finished_at,slot,status,calls,detail
 25,2026-11-15T09:08:08+08:00,2026-11-15T09:09:10+08:00,morning,ok,7,wed_sun:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
 26,2026-11-16T09:07:58+08:00,2026-11-16T09:08:47+08:00,morning,ok,8,fri_mon:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
 27,2026-11-17T09:08:11+08:00,2026-11-17T09:08:44+08:00,morning,ok,7,fri_wed:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
+28,2026-11-18T09:08:02+08:00,2026-11-18T09:09:00+08:00,morning,error,0,"Traceback (most recent call last):
+  File ""/home/runner/work/jjwq-flight-tracker/jjwq-flight-tracker/main.py"", line 389, in main
+    status = run(cfg, store, provider, notifier, now, args.dry_run, args.digest, report_path, args.preview)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/runner/work/jjwq-flight-tracker/jjwq-flight-tracker/main.py"", line 322, in run
+    notifier.admin(""⚠️ Some planned flights weren't found (schedule change or not on sale yet):\n""
+  File ""/home/runner/work/jjwq-flight-tracker/jjwq-flight-tracker/notify.py"", line 56, in admin
+    self.send(self.admin_chat_id, ""🔧 Flight tracker\n"" + h(text))
+  File ""/home/runner/work/jjwq-flight-tracker/jjwq-flight-tracker/notify.py"", line 45, in send
+    return self._call(""sendMessage"", chat_id=chat_id, text=html[:4096], parse_mode=""HTML"",
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File ""/home/runner/work/jjwq-flight-tracker/jjwq-flight-tracker/notify.py"", line 41, in _call
+    raise RuntimeError(f""Telegram {method} failed: {data.get('description')}"")
+RuntimeError: Telegram sendMessage failed: Bad Gateway
+"
