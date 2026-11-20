@@ -43,3 +43,4 @@ RuntimeError: Telegram sendMessage failed: Bad Gateway
 "
 29,2026-11-18T20:10:13+08:00,2026-11-18T20:10:44+08:00,morning,ok,5,
 30,2026-11-19T09:08:05+08:00,2026-11-19T09:08:32+08:00,morning,ok,7,
+31,2026-11-20T09:08:10+08:00,2026-11-20T09:09:33+08:00,morning,ok,8,fri_mon:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
