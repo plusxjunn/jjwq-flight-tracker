@@ -47,3 +47,4 @@ RuntimeError: Telegram sendMessage failed: Bad Gateway
 32,2026-11-21T09:08:06+08:00,2026-11-21T09:08:21+08:00,morning,partial,7,ow_back_0905: Your account has run out of searches.; ow_back_0906: Your account has run out of searches.; ow_back_0908: Your account has run out of searches.; rt_main_SQ_day: Your account has run out of searches.; rt_fri_wed_SQ_day: Your account has run out of searches.
 33,2026-11-22T09:08:28+08:00,2026-11-22T09:09:34+08:00,morning,ok,8,
 34,2026-11-23T09:08:00+08:00,2026-11-23T09:09:01+08:00,morning,ok,7,
+35,2026-11-24T09:07:59+08:00,2026-11-24T09:09:06+08:00,morning,partial,8,rt_main_SQ_after_work: Google Flights hasn't returned any results for this query.
