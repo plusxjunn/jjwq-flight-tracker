@@ -49,3 +49,4 @@ RuntimeError: Telegram sendMessage failed: Bad Gateway
 34,2026-11-23T09:08:00+08:00,2026-11-23T09:09:01+08:00,morning,ok,7,
 35,2026-11-24T09:07:59+08:00,2026-11-24T09:09:06+08:00,morning,partial,8,rt_main_SQ_after_work: Google Flights hasn't returned any results for this query.
 36,2026-11-25T09:08:38+08:00,2026-11-25T09:09:34+08:00,morning,ok,8,fri_wed:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
+37,2026-11-26T09:08:58+08:00,2026-11-26T09:10:10+08:00,morning,ok,7,main:SQ:day: Google shows no price for SQ 938 + SQ 945 (often: not on sale yet)
